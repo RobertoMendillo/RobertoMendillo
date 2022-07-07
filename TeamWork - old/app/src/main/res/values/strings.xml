@@ -8,7 +8,6 @@
     <string name="signup_confirm_password_hint">Confirm your password</string>
     <string name="login_button">Login</string>
     <string name="signup_button">Register</string>
-    <string name="singup_message">If you are not registered ...</string>
 
     <string name="app_name">TeamWork</string>
     <string name="send_button">Send</string>

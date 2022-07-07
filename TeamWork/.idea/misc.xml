@@ -3,12 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/activity_main.xml" value="0.26944444444444443" />
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_chat.xml" value="0.28131680205215903" />
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_email_password.xml" value="0.27775432672013506" />
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_group_creation.xml" value="0.28131680205215903" />
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_group_list.xml" value="0.195382642154767" />
-        <entry key="..\:/Users/Roberto/Documents/Repository/percom2022-elaborato-RobertoMendillo/TeamWork/app/src/main/res/layout/group.xml" value="0.2804617357845233" />
+        <entry key="..\:/Users/Roberto/Documents/Repository/RobertoMendillo/TeamWork/app/src/main/res/layout/activity_authentication.xml" value="0.3416666666666667" />
+        <entry key="..\:/Users/Roberto/Documents/Repository/RobertoMendillo/TeamWork/app/src/main/res/layout/activity_main.xml" value="0.171875" />
+        <entry key="..\:/Users/Roberto/Documents/Repository/RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_email_password.xml" value="0.34270833333333334" />
+        <entry key="..\:/Users/Roberto/Documents/Repository/RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_login.xml" value="0.34270833333333334" />
+        <entry key="..\:/Users/Roberto/Documents/Repository/RobertoMendillo/TeamWork/app/src/main/res/layout/fragment_signup.xml" value="0.34270833333333334" />
       </map>
     </option>
   </component>
@@ -17,12 +16,5 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
-  </component>
-  <component name="VisualizationToolProject">
-    <option name="state">
-      <ProjectState>
-        <option name="scale" value="0.28131680205215903" />
-      </ProjectState>
-    </option>
   </component>
 </project>

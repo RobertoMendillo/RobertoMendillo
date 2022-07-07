@@ -1,15 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript{
-    ext.kotlin_version = '1.7.10'
+buildscript {
 
     repositories {
-        google()
-        mavenCentral()
+        google() //Google's Maven repository
     }
-
     dependencies {
-        classpath 'com.google.gms:google-services:4.3.13'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.google.gms:google-services:4.3.13'  // Google Services plugin
     }
 }
 
@@ -20,12 +16,14 @@ plugins {
 }
 
 allprojects {
-
     repositories {
-        google()
+        google() //Google's Maven repository
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+
+
