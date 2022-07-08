@@ -3,6 +3,7 @@ package it.unisannio.studenti.mendillo.teamwork
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,12 +18,12 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentLoginBinding
 
 class LoginFragment: Fragment() {
-
 
     // Firebase Auth necessaria per l'autenticazione tramite Firebase
     private lateinit var auth: FirebaseAuth
@@ -33,8 +34,7 @@ class LoginFragment: Fragment() {
     private val binding: FragmentLoginBinding
         get() = _binding!!
 
-    private val signIn: ActivityResultLauncher<Intent> =
-        registerForActivityResult(FirebaseAuthUIActivityResultContract(), this::onSignInResult)
+
 
 
     override fun onCreateView(
@@ -59,61 +59,72 @@ class LoginFragment: Fragment() {
                 .commit()
         }
 
-        binding.loginButton.setOnClickListener{
+        binding.signinButton.setOnClickListener{
+            if(Firebase.auth.currentUser == null){
+                val email = binding.signinEmailEdittext.toString()
+                val password = binding.signinPasswordEdittext.toString()
+                signIn(email, password)
 
+            }else{
+                goToGroupListFragment(auth.currentUser)
+            }
         }
+
+        auth = Firebase.auth
     }
 
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "OnStart")
-        //Se non ci sono utenti registrati avvia il signInIntent creato il con il builder di
-        // FireBaseUI Auth
-        // altrimenti si attiva la mainActivity
-        if(Firebase.auth.currentUser == null){
-            // Sign in con FirebaseUI
-            val signInIntent = AuthUI.getInstance()
-                .createSignInIntentBuilder()
-                .setAvailableProviders(listOf(
-                    AuthUI.IdpConfig.EmailBuilder().build()
-                ))
-                .build()
-
-            signIn.launch(signInIntent)
-        }else{
-            goToGroupListFragment()
-        }
-
-
     }
 
 
-    // funzione invocata al termine della fase di login, si gestisce il risultato del login stesso
-    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult){
-        if(result.resultCode == Activity.RESULT_OK){
-            Log.d(TAG, "Login effettuato con successo")
-            goToGroupListFragment()
-        }else{
-            Toast.makeText(
-                activity,
-                "Login non riuscito",
-                Toast.LENGTH_LONG
-            ).show()
+   private fun signIn(email: String, password: String){
+       Log.d("LoginFragment - Sign In", email + password)
+       if(!validateForm()){
+           return
+       }
 
-            val response = result.idpResponse
-            if(response == null){
-                Log.w(TAG, "Sing in cancellato")
-            }else{
-                Log.w(TAG, "Sing in errato", response.error)
-            }
+       auth.signInWithEmailAndPassword(email, password)
+           .addOnCompleteListener(requireActivity()){ task ->
+               if(task.isSuccessful){
+                   // Login avvenuto con successo
+                   Log.d(TAG, "Signin successful")
+                   val user = auth.currentUser
+
+               }
+           }
+   }
+
+    private fun validateForm(): Boolean{
+
+        var valid = true
+        // verifichiamo che il campo email sia stato inserito
+        val email = binding.signinEmailEdittext.text.toString()
+        if(TextUtils.isEmpty(email)){
+            binding.signinEmailEdittext.error = "Required"
+            valid = false
+        }else{
+            binding.signinEmailEdittext.error = null
         }
+
+        // verifichiamo che il campo password sia stato inserito
+        val password = binding.signinPasswordEdittext.text.toString()
+        if(TextUtils.isEmpty(password)){
+            binding.signinPasswordEdittext.error = "Required"
+            valid = false
+        }else{
+            binding.signinPasswordEdittext.error = null
+        }
+
+        return valid
     }
 
-    private fun goToGroupListFragment() {
-        parentFragmentManager.beginTransaction().replace(R.id.fragment_container, GroupListFragment.newInstance())
+    private fun goToGroupListFragment(user: FirebaseUser?) {
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, GroupListFragment.newInstance())
             .addToBackStack("GroupListFragment")
             .commit()
-        activity?.finish()
     }
 
     companion object{
