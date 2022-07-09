@@ -54,13 +54,10 @@ class GroupCreationFragment: Fragment() {
                 docRef.set(groupsToSave).addOnSuccessListener {
                     Log.d(TAG, "Group added with success")
                     Toast.makeText(context, "Group added", Toast.LENGTH_SHORT).show()
-                    parentFragmentManager.beginTransaction().remove(this)
-                        .addToBackStack("remove GroupCreationFragment").commit()
+                    parentFragmentManager.beginTransaction().remove(this).commit()
                 }
             }
-
         }
-
     }
 
 

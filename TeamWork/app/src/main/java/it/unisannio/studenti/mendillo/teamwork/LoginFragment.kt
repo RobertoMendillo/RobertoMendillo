@@ -35,8 +35,6 @@ class LoginFragment: Fragment() {
         get() = _binding!!
 
 
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,12 +59,10 @@ class LoginFragment: Fragment() {
 
         binding.signinButton.setOnClickListener{
             if(Firebase.auth.currentUser == null){
-                val email = binding.signinEmailEdittext.toString()
-                val password = binding.signinPasswordEdittext.toString()
+                val email = binding.signinEmailEdittext.text.toString()
+                val password = binding.signinPasswordEdittext.text.toString()
                 signIn(email, password)
 
-            }else{
-                goToGroupListFragment(auth.currentUser)
             }
         }
 
@@ -91,7 +87,7 @@ class LoginFragment: Fragment() {
                    // Login avvenuto con successo
                    Log.d(TAG, "Signin successful")
                    val user = auth.currentUser
-
+                   goToGroupListFragment(email)
                }
            }
    }
@@ -120,7 +116,11 @@ class LoginFragment: Fragment() {
         return valid
     }
 
-    private fun goToGroupListFragment(user: FirebaseUser?) {
+    private fun goToGroupListFragment(email: String) {
+        var bundle: Bundle = Bundle()
+        bundle.putSerializable("user",email)
+        val fragment: Fragment = GroupListFragment()
+        fragment.arguments = bundle
         parentFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, GroupListFragment.newInstance())
             .addToBackStack("GroupListFragment")

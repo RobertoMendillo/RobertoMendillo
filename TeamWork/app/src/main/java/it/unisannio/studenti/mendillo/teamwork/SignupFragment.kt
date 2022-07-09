@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentSignupBinding
 
@@ -36,10 +38,11 @@ class SignupFragment: Fragment(){
             createAccount(email, password)
         }
 
+
         auth = Firebase.auth
     }
 
-    fun createAccount(email: String, password: String){
+    private fun createAccount(email: String, password: String){
         Log.d(TAG, "createAccount:$email")
         if(!validateForm()){
             return
@@ -51,12 +54,26 @@ class SignupFragment: Fragment(){
                     // Registrazione completata con successo
                     Log.d(TAG, "createUserWithEmailPassword:success")
                     val user = auth.currentUser
+                    addUserToDatabase(email)
+                    var bundle: Bundle = Bundle()
+                    bundle.putSerializable("user",email)
+                    val fragment: Fragment = GroupListFragment()
+                    fragment.arguments = bundle
+                    parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
+                        .addToBackStack("GroupListFragment").commit()
                     //TODO aggiungere redirezione verso lista dei gruppi
                 }else{
                     Log.w(TAG, "createUserWithEmailPassword:failed", task.exception)
                     Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun addUserToDatabase(email: String){
+        val firestore = FirebaseFirestore.getInstance()
+        var data: HashMap<String, String> = HashMap()
+        data.put("email", email)
+        firestore.collection("users").document(email).set(data)
     }
 
     private fun validateForm(): Boolean{
