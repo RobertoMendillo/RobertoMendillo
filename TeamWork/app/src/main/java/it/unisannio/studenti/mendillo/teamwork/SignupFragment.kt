@@ -61,7 +61,6 @@ class SignupFragment: Fragment(){
                     fragment.arguments = bundle
                     parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
                         .addToBackStack("GroupListFragment").commit()
-                    //TODO aggiungere redirezione verso lista dei gruppi
                 }else{
                     Log.w(TAG, "createUserWithEmailPassword:failed", task.exception)
                     Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()
