@@ -8,14 +8,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 
-class MainActivity : AppCompatActivity() {
+private const val TAG = "MainActivity"
+class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
 
     private lateinit var auth : FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         //Inizializza Firebase auth e verifica se l'utente ha effettuato il login
         auth = Firebase.auth
         if(auth.currentUser == null){
@@ -36,5 +36,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onGroupSelected(groupName: String?) {
+        var fragment = ChatFragment.newInstance(groupName)
+        var bundle = Bundle()
+        bundle.putSerializable(GroupListFragment.GROUP_NAME, groupName)
+        bundle.putSerializable("User", auth.currentUser?.email.toString())
+        fragment.arguments = bundle
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+    }
 
 }

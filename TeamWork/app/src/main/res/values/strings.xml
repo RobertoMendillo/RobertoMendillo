@@ -19,4 +19,6 @@
     <string name="group_description_hint">Write a description for the group</string>
     <string name="create_new_group">Create</string>
     <string name="list_of_members">Group members</string>
+    <string name="add_members_button">Add member</string>
+    <string name="modify_group">Modify</string>
 </resources>

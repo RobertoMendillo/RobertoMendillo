@@ -4,6 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
+
     <LinearLayout
         android:id="@+id/createGroupLL"
         android:layout_width="match_parent"
@@ -11,12 +13,14 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        >
+        app:layout_constraintVertical_bias="0.0">
+
         <LinearLayout
             android:id="@+id/GroupNameLinearLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="@id/GroupDescriptionLinearLayout"
@@ -27,27 +31,28 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:padding="10dp"
                 android:text="@string/group_name_label"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_gravity="center"
-                />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/editTextGroupName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/group_name_hint"
                 android:layout_gravity="center"
+                android:hint="@string/group_name_hint"
                 android:inputType="text"
-                />
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
+
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/GroupDescriptionLinearLayout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -58,51 +63,96 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:layout_margin="10dp"
                 android:padding="10dp"
                 android:text="@string/group_description_label"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                android:layout_gravity="center"/>
+                app:layout_constraintStart_toStartOf="parent" />
 
             <EditText
                 android:id="@+id/editTextGroupDescription"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/group_description_hint"
                 android:layout_gravity="center"
+                android:hint="@string/group_description_hint"
                 android:inputType="text"
-                />
+                android:minHeight="48dp"
+                android:textColorHint="#757575" />
         </LinearLayout>
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/members_linearlayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="@string/list_of_members"
-            android:layout_margin="16dp"
-            />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                android:text="@string/list_of_members"
+                android:textAlignment="center"
+                android:textSize="16sp" />
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/groupMembersRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="450dp"
             android:layout_margin="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/createGroupLL"
-            />
+            app:layout_constraintTop_toBottomOf="@+id/createGroupLL" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+            android:id="@+id/add_member_editText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="Email"
+            app:layout_constraintEnd_toEndOf="@id/create_group_button"
+            app:layout_constraintStart_toStartOf="parent" />
+
+            <Button
+                android:id="@+id/add_member_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:text="@string/add_members_button"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/create_group_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="300dp"
+                android:layout_marginEnd="24dp"
+                android:layout_marginBottom="6dp"
+                android:text="@string/create_new_group"
+                android:textSize="12sp"
+                />
+        </LinearLayout>
 
     </LinearLayout>
 
-
-    <Button
-        android:id="@+id/create_group_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="24dp"
-        android:text="@string/create_new_group"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,5 +1,6 @@
 package it.unisannio.studenti.mendillo.teamwork
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,20 +11,46 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.firebase.ui.database.FirebaseRecyclerAdapter
+import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.database.FirebaseDatabase
+import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
+import it.unisannio.studenti.mendillo.teamwork.databinding.ListGroupItemBinding
 
 
 class GroupListFragment: Fragment(){
 
-    private lateinit var groupRecycleView: RecyclerView
-    private var adapter: GroupAdapter? = null
-
-    private val groupListViewModel: GroupListViewModel by lazy {
-        ViewModelProvider(this).get(GroupListViewModel::class.java)
+    /**
+     * Required interface for hosting activities
+     */
+    interface Callbacks {
+        fun onGroupSelected(groupName: String?)
     }
+    private var callbacks: Callbacks? = null
+
+    private lateinit var groupRecycleView: RecyclerView
+    private lateinit var adapter: GroupAdapter
+    private lateinit var manager: LinearLayoutManager
+
+    private lateinit var database: FirebaseDatabase
+
+    private lateinit var binding: FragmentGroupListBinding
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total groups: ${groupListViewModel.groups.size}")
+        database = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
+        var groupsRef = database.reference.child("groups")
+        val options = FirebaseRecyclerOptions.Builder<Group>()
+            .setQuery(groupsRef, Group::class.java)
+            .build()
+        adapter = GroupAdapter(options)
+        manager = WrapContentLinearLayoutManager(context)
+        manager.stackFromEnd = true
+        Log.d(TAG, "onCreate")
     }
 
     override fun onCreateView(
@@ -31,53 +58,98 @@ class GroupListFragment: Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_group_list, container, false)
-        groupRecycleView = view.findViewById(R.id.groupListRecycleView) as RecyclerView
+        binding = FragmentGroupListBinding.inflate(inflater, container, false)
+        binding.groupListRecycleView.adapter = adapter
+        binding.groupListRecycleView.layoutManager = manager
+        groupRecycleView = binding.groupListRecycleView
         groupRecycleView.layoutManager = LinearLayoutManager(context)
 
-        updateUI()
-
-        return view
+        return binding.root
     }
 
-    
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    private fun updateUI(){
-        val groups = groupListViewModel.groups
-        adapter = GroupAdapter(groups)
-        groupRecycleView.adapter = adapter
+        var addGroupButton: FloatingActionButton = view.findViewById(R.id.add_group_button) as FloatingActionButton
+        addGroupButton.setOnClickListener{
+            val fragment = GroupCreationFragment.newInstance()
+            parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+        }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        callbacks = context as Callbacks?
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        callbacks = null
+    }
+
+    override fun onPause() {
+        adapter.stopListening()
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        adapter.startListening()
     }
 
     /**
      * HOLDER
      */
-    private inner class GroupHolder(view: View): RecyclerView.ViewHolder(view){
+    private inner class GroupHolder(view: View): RecyclerView.ViewHolder(view), View.OnClickListener{
 
-        val nameTextView: TextView = itemView.findViewById(R.id.group_name_label)
-        val descrTextView: TextView = itemView.findViewById(R.id.group_description)
+        private lateinit var group: Group
 
+        private val nameTextView: TextView = itemView.findViewById(R.id.group_name_label)
+        private val descrTextView: TextView = itemView.findViewById(R.id.group_description)
+
+        init {
+            itemView.setOnClickListener(this)
+        }
+
+        fun bind(group: Group){
+            this.group = group
+            nameTextView.text = this.group.name
+            descrTextView.text = this.group.description
+        }
+
+        override fun onClick(v: View?) {
+            callbacks?.onGroupSelected(group.name)
+        }
     }
 
     /**
      * ADAPTER
      */
-    private inner class GroupAdapter(var groups: ArrayList<Group>): RecyclerView.Adapter<GroupHolder>(){
+    private inner class GroupAdapter(
+        private val options: FirebaseRecyclerOptions<Group>
+    ): FirebaseRecyclerAdapter<Group, RecyclerView.ViewHolder>(options){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupHolder {
             val view = layoutInflater.inflate(R.layout.list_group_item, parent, false)
             return GroupHolder(view)
         }
 
-        override fun getItemCount(): Int {
-            return groups.size
+        override fun getItemViewType(position: Int): Int {
+            return 1
         }
 
-        override fun onBindViewHolder(holder: GroupHolder, position: Int) {
-            val group = groups[position]
-            holder.apply {
-                nameTextView.text = group.name
-                descrTextView.text = group.description
+        override fun onBindViewHolder(
+            holder: RecyclerView.ViewHolder,
+            position: Int,
+            model: Group
+        ) {
+            if(options.snapshots[position].owner != null){
+                Log.d(TAG, "OnBindViewHolder")
+                (holder as GroupHolder).bind(model)
+                Log.d(TAG, "OnBindViewHolder")
             }
+
+
         }
 
     }
@@ -89,6 +161,7 @@ class GroupListFragment: Fragment(){
         }
 
         const val TAG = "GroupListFragment"
+        const val GROUP_NAME = "groupName"
     }
 
 
