@@ -10,6 +10,7 @@ import android.widget.Adapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -100,15 +101,11 @@ class GroupCreationFragment: Fragment() {
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
             }else{
-                db.reference.child(USERS).get().addOnSuccessListener { it ->
-                    val hashMap = HashMap<String, String>()
-                    hashMap.put(group.members!!.size.toString(), email)
-                    db.reference.child(GROUPS).child("${group.id}").child("members")
-                        .push().setValue(hashMap)
-
-                    group.members!!.add(email)
-                }
-
+                db.reference.child(GROUPS).child("${group.id}").removeValue()
+                group.members?.add(email)
+                var pushRef = db.reference.child(GROUPS).push()
+                group.id = pushRef.key
+                pushRef.setValue(group)
             }
         }
     }
