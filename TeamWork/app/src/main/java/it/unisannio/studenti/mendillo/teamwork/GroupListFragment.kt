@@ -3,9 +3,7 @@ package it.unisannio.studenti.mendillo.teamwork
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -14,7 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
 import it.unisannio.studenti.mendillo.teamwork.databinding.ListGroupItemBinding
 
@@ -25,7 +25,7 @@ class GroupListFragment: Fragment(){
      * Required interface for hosting activities
      */
     interface Callbacks {
-        fun onGroupSelected(groupName: String?)
+        fun onGroupSelected(group: Group)
     }
     private var callbacks: Callbacks? = null
 
@@ -42,6 +42,8 @@ class GroupListFragment: Fragment(){
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+
         database = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
         var groupsRef = database.reference.child("groups")
         val options = FirebaseRecyclerOptions.Builder<Group>()
@@ -97,6 +99,26 @@ class GroupListFragment: Fragment(){
         adapter.startListening()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_group_list, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.logout -> {
+                Firebase.auth.signOut()
+                val fragment = LoginFragment()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null).commit()
+                true
+            }else -> {
+                return super.onOptionsItemSelected(item)
+            }
+        }
+    }
+
     /**
      * HOLDER
      */
@@ -118,7 +140,7 @@ class GroupListFragment: Fragment(){
         }
 
         override fun onClick(v: View?) {
-            callbacks?.onGroupSelected(group.name)
+            callbacks?.onGroupSelected(group)
         }
     }
 

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentSignupBinding
@@ -19,6 +20,8 @@ class SignupFragment: Fragment(){
 
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentSignupBinding
+
+    private var db = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -61,6 +64,8 @@ class SignupFragment: Fragment(){
                     fragment.arguments = bundle
                     parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
                         .addToBackStack("GroupListFragment").commit()
+
+                    db.push().setValue(auth.currentUser?.email)
                 }else{
                     Log.w(TAG, "createUserWithEmailPassword:failed", task.exception)
                     Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()

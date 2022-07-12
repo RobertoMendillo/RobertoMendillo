@@ -36,10 +36,10 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
         }
     }
 
-    override fun onGroupSelected(groupName: String?) {
-        var fragment = ChatFragment.newInstance(groupName)
+    override fun onGroupSelected(group: Group) {
+        var fragment = ChatFragment.newInstance(group)
         var bundle = Bundle()
-        bundle.putSerializable(GroupListFragment.GROUP_NAME, groupName)
+        bundle.putSerializable("group", group)
         bundle.putSerializable("User", auth.currentUser?.email.toString())
         fragment.arguments = bundle
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()

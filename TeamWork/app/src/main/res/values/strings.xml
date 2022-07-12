@@ -9,6 +9,7 @@
     <string name="login_button">Sing In</string>
     <string name="signup_button">Sign Up</string>
     <string name="singup_message">If you are not registered ...</string>
+    <string name="logout">Logout</string>
 
     <string name="app_name">TeamWork</string>
     <string name="send_button">Send</string>

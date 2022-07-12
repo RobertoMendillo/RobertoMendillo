@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.os.Message
 import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -39,7 +37,7 @@ internal class WrapContentLinearLayoutManager(c: Context?) : LinearLayoutManager
 
 class ChatFragment: Fragment() {
 
-    private lateinit var group: String
+    private lateinit var group: Group
     private lateinit var user: String
     private lateinit var firestore: FirebaseDatabase
     //private lateinit var collection: CollectionReference
@@ -53,13 +51,14 @@ class ChatFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        group = arguments?.getSerializable("group") as Group
+        Log.d(TAG, "args bundle group name: ${group.name}")
 
-        group = arguments?.getSerializable(GroupListFragment.GROUP_NAME) as String
-        Log.d(TAG, "args bundle group name: ${group}")
         user = arguments?.getSerializable("User") as String
 
         firestore= FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
-        messagesRef = firestore.reference.child(GROUPS).child("${group}").child("messages")
+        messagesRef = firestore.reference.child(GROUPS).child("${group.id}").child("messages")
 
         val options = FirebaseRecyclerOptions.Builder<ChatMessage>()
             .setQuery(messagesRef, ChatMessage::class.java)
@@ -108,6 +107,25 @@ class ChatFragment: Fragment() {
             }
         }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_group_chat, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.modify_group ->{
+                val bundle = Bundle()
+                bundle.putSerializable("group", group)
+                val fragment = GroupCreationFragment()
+                fragment.arguments = bundle
+                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onPause() {
@@ -169,9 +187,9 @@ class ChatFragment: Fragment() {
     }
 
     companion object{
-        fun newInstance(groupName: String?): ChatFragment{
+        fun newInstance(group: Group): ChatFragment{
             val args = Bundle().apply {
-                putSerializable(GroupListFragment.GROUP_NAME, groupName)
+                putSerializable(GroupListFragment.GROUP_NAME, group.name)
             }
             return ChatFragment().apply {
                 arguments = args
@@ -182,5 +200,6 @@ class ChatFragment: Fragment() {
         const val VIEW_TYPE_TEXT = 1
         const val MESSAGES = "messages"
         const val GROUPS = "groups"
+        const val GROUP_NAME = "groupName"
     }
 }
