@@ -6,22 +6,16 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.database.FirebaseRecyclerAdapter
-import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.DocumentReference
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupCreationBinding
-import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentMemberItemBinding
-import org.w3c.dom.Text
+import it.unisannio.studenti.mendillo.teamwork.model.Group
 
 private const val TAG = "GroupCreationFragment"
 
@@ -103,6 +97,19 @@ class GroupCreationFragment: Fragment() {
             }else{
                 db.reference.child(GROUPS).child("${group.id}").removeValue()
                 group.members?.add(email)
+                var pushRef = db.reference.child(GROUPS).push()
+                group.id = pushRef.key
+                pushRef.setValue(group)
+            }
+        }
+
+        binding.removeMemberButton.setOnClickListener{
+            val email = binding.addMemberEditText.text.toString()
+            if(TextUtils.isEmpty(email)){
+                binding.addMemberEditText.error = "Required"
+            }else{
+                db.reference.child(GROUPS).child("${group.id}").removeValue()
+                group.members?.remove(email)
                 var pushRef = db.reference.child(GROUPS).push()
                 group.id = pushRef.key
                 pushRef.setValue(group)

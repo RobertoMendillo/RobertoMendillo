@@ -21,7 +21,8 @@ class SignupFragment: Fragment(){
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentSignupBinding
 
-    private var db = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app").reference.child("users")
+    private var db = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
+        .reference.child("users")
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -64,8 +65,6 @@ class SignupFragment: Fragment(){
                     fragment.arguments = bundle
                     parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment)
                         .addToBackStack("GroupListFragment").commit()
-
-                    db.push().setValue(auth.currentUser?.email)
                 }else{
                     Log.w(TAG, "createUserWithEmailPassword:failed", task.exception)
                     Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()
@@ -74,10 +73,7 @@ class SignupFragment: Fragment(){
     }
 
     private fun addUserToDatabase(email: String){
-        val firestore = FirebaseFirestore.getInstance()
-        var data: HashMap<String, String> = HashMap()
-        data.put("email", email)
-        firestore.collection("users").document(email).set(data)
+        db.push().setValue(email)
     }
 
     private fun validateForm(): Boolean{
@@ -110,5 +106,6 @@ class SignupFragment: Fragment(){
         }
 
         val TAG = "SignUpFragment"
+        const val USERS = "users"
     }
 }

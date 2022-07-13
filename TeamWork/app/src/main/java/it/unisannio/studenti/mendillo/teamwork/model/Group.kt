@@ -1,5 +1,6 @@
-package it.unisannio.studenti.mendillo.teamwork
+package it.unisannio.studenti.mendillo.teamwork.model
 
+import it.unisannio.studenti.mendillo.teamwork.ChatMessage
 import java.io.Serializable
 import java.util.*
 import kotlin.collections.ArrayList

@@ -7,4 +7,10 @@
         android:id="@+id/modify_group"
         android:title="@string/modify_group"
         />
+
+    <item
+        android:id="@+id/delete_group"
+        android:title="@string/delete_group"
+        android:visible="true"
+        />
 </menu>

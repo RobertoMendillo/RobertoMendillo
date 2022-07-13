@@ -1,12 +1,12 @@
 package it.unisannio.studenti.mendillo.teamwork
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import it.unisannio.studenti.mendillo.teamwork.model.Group
 
 private const val TAG = "MainActivity"
 class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {

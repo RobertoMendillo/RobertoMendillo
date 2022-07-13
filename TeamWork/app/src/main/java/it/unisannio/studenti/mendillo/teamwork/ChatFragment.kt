@@ -2,8 +2,6 @@ package it.unisannio.studenti.mendillo.teamwork
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Message
-import android.text.TextUtils
 import android.util.Log
 import android.view.*
 import android.widget.Button
@@ -14,15 +12,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.FirebaseFirestore
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentChatBinding
-import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
+import it.unisannio.studenti.mendillo.teamwork.model.Group
 
 internal class WrapContentLinearLayoutManager(c: Context?) : LinearLayoutManager(c) {
 
@@ -48,6 +42,7 @@ class ChatFragment: Fragment() {
     private lateinit var binding: FragmentChatBinding
     private lateinit var chatMessageRecyclerView: RecyclerView
     private lateinit var adapter: ChatMessageAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,10 +106,11 @@ class ChatFragment: Fragment() {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.fragment_group_chat, menu)
+        inflater.inflate(R.menu.fragment_chat, menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
         return when(item.itemId){
             R.id.modify_group ->{
                 val bundle = Bundle()
@@ -122,6 +118,23 @@ class ChatFragment: Fragment() {
                 val fragment = GroupCreationFragment()
                 fragment.arguments = bundle
                 parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+                return true
+            }
+            R.id.delete_group ->{
+                var auth = FirebaseAuth.getInstance().currentUser?.email
+                if (auth.equals(group.owner) && group.members?.size == 1){
+                    firestore.reference.child(GROUPS).child("${group.id}").removeValue()
+                    Log.d(TAG, "DELETE GROUP")
+                    parentFragmentManager.beginTransaction().remove(this).commit()
+                    parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
+                }
+                else if(!auth.equals(group.owner)){
+                    Toast.makeText(context, "PERMISSION DENIED: you are not the owner!", Toast.LENGTH_SHORT ).show()
+                }else{
+                    Toast.makeText(context, "${PERMISSION_DENIED}: The group is not empty", Toast.LENGTH_SHORT).show()
+                }
+
+                //TODO DELETE GROUP
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
@@ -201,5 +214,6 @@ class ChatFragment: Fragment() {
         const val MESSAGES = "messages"
         const val GROUPS = "groups"
         const val GROUP_NAME = "groupName"
+        const val PERMISSION_DENIED = "PERMISSION DENIED"
     }
 }

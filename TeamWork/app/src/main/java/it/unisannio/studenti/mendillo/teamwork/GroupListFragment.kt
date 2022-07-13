@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
@@ -16,7 +15,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
-import it.unisannio.studenti.mendillo.teamwork.databinding.ListGroupItemBinding
+import it.unisannio.studenti.mendillo.teamwork.model.Group
 
 
 class GroupListFragment: Fragment(){

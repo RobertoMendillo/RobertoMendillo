@@ -12,6 +12,8 @@
     <string name="logout">Logout</string>
 
     <string name="app_name">TeamWork</string>
+
+    <!-- chat and groups    -->
     <string name="send_button">Send</string>
     <string name="text_message_hint">Write here your message</string>
     <string name="group_name_label">Group name</string>
@@ -20,6 +22,9 @@
     <string name="group_description_hint">Write a description for the group</string>
     <string name="create_new_group">Create</string>
     <string name="list_of_members">Group members</string>
-    <string name="add_members_button">Add member</string>
+    <string name="add_members_button">Add</string>
+    <string name="remove_member_button">Remove</string>
     <string name="modify_group">Modify</string>
+    <string name="delete_group">Delete</string>
+
 </resources>
