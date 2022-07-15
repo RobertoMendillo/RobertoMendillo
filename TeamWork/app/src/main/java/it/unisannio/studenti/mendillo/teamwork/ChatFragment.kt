@@ -58,7 +58,7 @@ class ChatFragment: Fragment() {
         val options = FirebaseRecyclerOptions.Builder<ChatMessage>()
             .setQuery(messagesRef, ChatMessage::class.java)
             .build()
-        adapter = ChatMessageAdapter(options, user)
+        adapter = ChatMessageAdapter(options)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
 
@@ -122,7 +122,7 @@ class ChatFragment: Fragment() {
             }
             R.id.delete_group ->{
                 var auth = FirebaseAuth.getInstance().currentUser?.email
-                if (auth.equals(group.owner) && group.members?.size == 1){
+                if (auth.equals(group.owner) && group.members?.size == 0){
                     firestore.reference.child(GROUPS).child("${group.id}").removeValue()
                     Log.d(TAG, "DELETE GROUP")
                     parentFragmentManager.beginTransaction().remove(this).commit()
@@ -173,8 +173,7 @@ class ChatFragment: Fragment() {
      * ADAPTER
      */
     private inner class ChatMessageAdapter(
-        private val options: FirebaseRecyclerOptions<ChatMessage>,
-        private val currentUserName: String?
+        private val options: FirebaseRecyclerOptions<ChatMessage>
     ): FirebaseRecyclerAdapter<ChatMessage, RecyclerView.ViewHolder>(options){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatMessageHodler {

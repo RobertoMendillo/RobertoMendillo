@@ -3,9 +3,7 @@ package it.unisannio.studenti.mendillo.teamwork
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -32,6 +30,7 @@ class GroupCreationFragment: Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         if(arguments?.get("group") != null){
             group = Group()
             group = arguments?.get("group") as Group
@@ -115,6 +114,11 @@ class GroupCreationFragment: Fragment() {
                 pushRef.setValue(group)
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_group_creation, menu)
     }
 
     /**

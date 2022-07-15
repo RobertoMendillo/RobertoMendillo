@@ -10,13 +10,13 @@ class Group(
     var name: String? = null,
     var description: String? = null,
     var owner: String? = null,
-    var members: ArrayList<String>? = null,
-    var messages: Stack<ChatMessage>? = null
+    var members: ArrayList<String>? = null//,
+    //var messages: Stack<ChatMessage>? = null
     ) : Serializable{
 
     init {
         members = ArrayList()
-        messages = Stack()
+       // messages = Stack()
     }
 
     override fun toString(): String {

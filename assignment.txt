@@ -3,12 +3,14 @@ Descrizione sintetica in linguaggio naturale
 L’applicazione da realizzare, basata su front-end per piattaforma mobile e backend di supporto, deve supportare le attività di 
 comunicazione che un insieme di soggetti (nel seguito indicati come “partecipanti”), svolgono per lo sviluppo di progetti. 
 I partecipanti si registrano in piattaforma con e-mail e password, sono organizzati in gruppi. 
+
 Un gruppo viene creato (specificando nome ed immagine sintetica) da un partecipante che ne diventa proprietario. 
+
 In quanto proprietario può aggiungere/rimuovere altri partecipanti utilizzando la loro email di registrazione o cancellare il gruppo (se vuoto). 
+
 Un partecipante può rimuovere se stesso da un gruppo in cui è stato aggiunto ma non può rimuovere gli altri, se non è proprietario del gruppo.
-Per ogni gruppo viene creata una chat che include i relativi membri ed in cui il proprietario del gruppo è moderatore (dato che può eliminare i 
-membri dal gruppo e di conseguenza dalla chat). Nella chat devono poter essere inviati messaggi di testo unicode (il che include anche gli emoticon 
-senza nessun particolare tipo di supporto specifico). 
+
+Per ogni gruppo viene creata una chat che include i relativi membri ed in cui il proprietario del gruppo è moderatore (dato che può eliminare i membri dal gruppo e di conseguenza dalla chat). Nella chat devono poter essere inviati messaggi di testo unicode (il che include anche gli emoticon senza nessun particolare tipo di supporto specifico). 
 Non è richiesto il supporto di messaggi in chat di altra tipologia (immagini, link esterni, posizione corrente, o altro).
 
 Nota:
