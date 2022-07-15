@@ -92,8 +92,11 @@ class ChatFragment: Fragment() {
                     user,
                     message
                 )
-                messagesRef.push()
-                    .setValue(chatMessage)
+                group.messages?.add(chatMessage)
+                var postValues: Map<String, Any?> = group.toMap()
+                firestore.reference.child(GROUPS)
+                    .child("${group.id}")
+                    .updateChildren(postValues)
                     .addOnSuccessListener {
                         Log.d(TAG, "Message send with success")
                         Toast.makeText(context, "Sent!", Toast.LENGTH_SHORT).show()

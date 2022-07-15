@@ -51,12 +51,20 @@ class GroupCreationFragment: Fragment() {
         if(group == null) this.group = Group()
         var groupName = group.name
         var groupDescription = group.description
+        val user = FirebaseAuth.getInstance().currentUser?.email.toString()
+        group.owner = user
         if (groupName != null){
             binding.editTextGroupName.setText(groupName)
             binding.editTextGroupDescription.setText(groupDescription)
             membersRecycleView = binding.groupMembersRecyclerView
             membersRecycleView.layoutManager = LinearLayoutManager(context)
             membersRecycleView.adapter = adapter
+        }
+
+        if (!FirebaseAuth.getInstance().currentUser?.email?.equals(group.owner)!!){
+            binding.removeMemberButton.isEnabled = false
+            binding.addMemberButton.isEnabled = false
+            binding.addMemberEditText.isEnabled = false
         }
 
         return binding.root
@@ -72,10 +80,8 @@ class GroupCreationFragment: Fragment() {
                 binding.editTextGroupName.error = "Required"
             }
             else {
-                val user = FirebaseAuth.getInstance().currentUser?.email.toString()
                 group.name = binding.editTextGroupName.text.toString()
                 group.description = binding.editTextGroupDescription.text.toString()
-                group.owner = user
                 var pushRef = db.reference.child(GROUPS).push()
                 group.id = pushRef.key
                 pushRef.setValue(group)
@@ -94,11 +100,11 @@ class GroupCreationFragment: Fragment() {
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
             }else{
-                db.reference.child(GROUPS).child("${group.id}").removeValue()
                 group.members?.add(email)
-                var pushRef = db.reference.child(GROUPS).push()
-                group.id = pushRef.key
-                pushRef.setValue(group)
+                var postValues: Map<String, Any?> = group.toMap()
+                db.reference.child(GROUPS)
+                    .child("${group.id}")
+                    .updateChildren(postValues)
             }
         }
 
@@ -107,11 +113,11 @@ class GroupCreationFragment: Fragment() {
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
             }else{
-                db.reference.child(GROUPS).child("${group.id}").removeValue()
                 group.members?.remove(email)
-                var pushRef = db.reference.child(GROUPS).push()
-                group.id = pushRef.key
-                pushRef.setValue(group)
+                var postValues: Map<String, Any?> = group.toMap()
+                db.reference.child(GROUPS)
+                    .child("${group.id}")
+                    .updateChildren(postValues)
             }
         }
     }

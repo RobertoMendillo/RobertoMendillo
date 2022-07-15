@@ -18,3 +18,12 @@ Il front-end può essere realizzato in Android mediante SDK o in Flutter.
 Il backend può essere realizzato utilizzando l’API di una piattaforma gestita (Google Firebase) [scelta consigliata per l'elaborato individuale]
 Opzionalmente può realizzata ad-hoc mediante i framework Spring o Vert.X realizzando una adeguata API REST.
 
+Di seguito ci sono i link essenziali per le regole di sicurezza e nell'ultimo degli esempi:
+https://firebase.google.com/docs/rules
+https://firebase.google.com/docs/storage/security
+https://firebase.google.com/docs/firestore/security/get-started
+https://firebase.google.com/docs/firestore/solutions/role-based-access
+https://firebase.google.com/docs/reference/security/database#data
+https://firebase.google.com/docs/reference/rules/rules.firestore.Request
+https://firebase.google.com/docs/reference/rules/rules.firestore.Resource
+https://github.com/firebase/snippets-rules
