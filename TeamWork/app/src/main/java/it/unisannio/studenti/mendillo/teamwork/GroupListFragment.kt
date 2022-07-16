@@ -10,8 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.database.FirebaseRecyclerAdapter
 import com.firebase.ui.database.FirebaseRecyclerOptions
+import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
@@ -36,18 +39,20 @@ class GroupListFragment: Fragment(){
 
     private lateinit var binding: FragmentGroupListBinding
 
+    private lateinit var auth: String
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-
+        auth = FirebaseAuth.getInstance().currentUser?.uid.toString()
         database = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
         var groupsRef = database.reference.child("groups")
         val options = FirebaseRecyclerOptions.Builder<Group>()
-            .setQuery(groupsRef, Group::class.java)
+            .setQuery(database.reference.child("groups").orderByChild("owner").equalTo(auth), Group::class.java)
             .build()
+        var groups = database.reference.child("groups").orderByChild("owner").equalTo(FirebaseAuth.getInstance().currentUser?.uid.toString())
         adapter = GroupAdapter(options)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true

@@ -51,7 +51,7 @@ class GroupCreationFragment: Fragment() {
         if(group == null) this.group = Group()
         var groupName = group.name
         var groupDescription = group.description
-        val user = FirebaseAuth.getInstance().currentUser?.email.toString()
+        val user = FirebaseAuth.getInstance().currentUser?.uid.toString()
         group.owner = user
         if (groupName != null){
             binding.editTextGroupName.setText(groupName)
@@ -61,7 +61,7 @@ class GroupCreationFragment: Fragment() {
             membersRecycleView.adapter = adapter
         }
 
-        if (!FirebaseAuth.getInstance().currentUser?.email?.equals(group.owner)!!){
+        if (!FirebaseAuth.getInstance().currentUser?.uid?.toString().equals(group.owner)!!){
             binding.removeMemberButton.isEnabled = false
             binding.addMemberButton.isEnabled = false
             binding.addMemberEditText.isEnabled = false

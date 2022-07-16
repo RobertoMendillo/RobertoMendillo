@@ -125,13 +125,13 @@ class ChatFragment: Fragment() {
             }
             R.id.delete_group ->{
                 var auth = FirebaseAuth.getInstance().currentUser?.email
-                if (auth.equals(group.owner) && group.members?.size == 0){
+                if (auth.equals("$group.uid") && group.members?.size == 0){
                     firestore.reference.child(GROUPS).child("${group.id}").removeValue()
                     Log.d(TAG, "DELETE GROUP")
                     parentFragmentManager.beginTransaction().remove(this).commit()
                     parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
                 }
-                else if(!auth.equals(group.owner)){
+                else if(!auth.equals("$group.uid")){
                     Toast.makeText(context, "PERMISSION DENIED: you are not the owner!", Toast.LENGTH_SHORT ).show()
                 }else{
                     Toast.makeText(context, "${PERMISSION_DENIED}: The group is not empty", Toast.LENGTH_SHORT).show()
