@@ -1,9 +1,12 @@
 package it.unisannio.studenti.mendillo.teamwork
 
+import java.util.*
+
 class ChatMessage{
 
     var userName: String? = null
     var message: String? = null
+    var date: Date = Date()
 
     constructor()
 
@@ -13,7 +16,7 @@ class ChatMessage{
     }
 
     override fun toString(): String {
-        return userName + "::" +message
+        return userName + "::" +message + "::"+ date
     }
 
 }

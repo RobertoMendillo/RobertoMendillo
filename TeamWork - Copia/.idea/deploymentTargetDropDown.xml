@@ -6,13 +6,13 @@
         <type value="RUNNING_DEVICE_TARGET" />
         <deviceKey>
           <Key>
-            <type value="VIRTUAL_DEVICE_PATH" />
-            <value value="C:\Users\Roberto\.android\avd\Pixel_4_API_32.avd" />
+            <type value="SERIAL_NUMBER" />
+            <value value="adb-RF8R81C630J-gHFMhm._adb-tls-connect._tcp" />
           </Key>
         </deviceKey>
       </Target>
     </runningDeviceTargetSelectedWithDropDown>
-    <timeTargetWasSelectedWithDropDown value="2022-07-18T07:50:12.713562200Z" />
+    <timeTargetWasSelectedWithDropDown value="2022-07-18T08:59:26.155408Z" />
     <runningDeviceTargetsSelectedWithDialog>
       <Target>
         <type value="RUNNING_DEVICE_TARGET" />

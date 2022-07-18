@@ -15,9 +15,12 @@ import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.toObject
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentChatBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
+import java.lang.reflect.Type
 
 internal class WrapContentLinearLayoutManager(c: Context?) : LinearLayoutManager(c) {
 
@@ -55,29 +58,18 @@ class ChatFragment: Fragment() {
 
         firestore= FirebaseFirestore.getInstance()
         messagesRef = firestore.collection(MainActivity.GROUPS).document("${group.id}").collection("messages")
-        messagesRef.get().addOnSuccessListener {
+        group.messages?.clear()
+        messagesRef.orderBy("date").get().addOnSuccessListener {
             it.forEach{ doc ->
-                var mapOfMessages = doc.get("messages") as ArrayList<Any>
-                mapOfMessages.forEach { message ->
-                    group.messages?.add(message as ChatMessage)
-                }
-
+               var message = doc.toObject(ChatMessage::class.java)
+                group.messages?.add(message)
+                Log.d(TAG, group.messages.toString())
             }
-            Toast.makeText(context, "CURRENT MESSGES:"+ group.messages, Toast.LENGTH_SHORT).show()
             Log.d(TAG, "CURRENT MESSGES:"+ group.messages)
+        }.addOnCompleteListener {
+            this.onResume()
         }
-        /*messagesRef.whereNotEqualTo("userName", null)
-            .addSnapshotListener(EventListener<QuerySnapshot>(){ value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                if(error != null){
-                    Log.w(GroupListFragment.TAG, "Listen failed.", error)
-                }
 
-                value?.forEach { value ->
-                    group.messages?.add(value.toObject(ChatMessage::class.java))
-
-                }
-                Toast.makeText(context, "CURRENT MESSGES:"+ group.messages, Toast.LENGTH_SHORT).show()
-            })*/
         adapter = ChatMessageAdapter(group.messages!!)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
@@ -116,7 +108,7 @@ class ChatFragment: Fragment() {
                 firestore.collection(MainActivity.GROUPS)
                     .document("${group.id}")
                     .collection("messages")
-                    .add(group.messagesToMap())
+                    .add(chatMessage)
                     .addOnSuccessListener {
                         Log.d(TAG, "Message send with success")
                         Toast.makeText(context, "Sent!", Toast.LENGTH_SHORT).show()

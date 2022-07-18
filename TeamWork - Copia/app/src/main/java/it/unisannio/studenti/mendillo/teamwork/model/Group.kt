@@ -21,20 +21,11 @@ class Group: Serializable{
         messages = ArrayList()
     }
 
-
     constructor(){
     }
 
-
     override fun toString(): String {
         return name +":"+ description+":"+owner
-    }
-
-    @Exclude
-    fun messagesToMap(): HashMap<String, Any?>{
-        var result: HashMap<String, Any?> = HashMap()
-        if(messages?.isNotEmpty()!!) result["messages"] = messages
-        return result
     }
 
     @Exclude
