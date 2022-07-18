@@ -21,6 +21,8 @@ class Group: Serializable{
         messages = ArrayList()
     }
 
+
+
     constructor(){
     }
 

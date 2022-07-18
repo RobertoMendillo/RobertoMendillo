@@ -20,6 +20,7 @@ import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupCreation
 import it.unisannio.studenti.mendillo.teamwork.model.Group
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 private const val TAG = "GroupCreationFragment"
 
@@ -33,6 +34,10 @@ class GroupCreationFragment: Fragment() {
     private lateinit var membersRecycleView: RecyclerView
     private lateinit var adapter: MemberAdapter
     private lateinit var membersRef: DocumentReference
+
+    enum class Role {
+        PARTECIPANT, OWNER
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,7 +132,8 @@ class GroupCreationFragment: Fragment() {
                     .document("list")
                     .set(data)
             }
-            adapter.notifyDataSetChanged()
+            binding.addMemberEditText.text.clear()
+
         }
 
         binding.removeMemberButton.setOnClickListener{
@@ -147,8 +153,8 @@ class GroupCreationFragment: Fragment() {
                     .collection(MainActivity.MEMBERS)
                     .document("list")
                     .set(data)
-                adapter.notifyDataSetChanged()
             }
+            binding.addMemberEditText.text.clear()
         }
     }
 
