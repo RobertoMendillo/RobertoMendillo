@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,10 +17,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.Query
+import com.google.firebase.firestore.*
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
+import javax.annotation.Nullable
 
 
 class GroupListFragment: Fragment(){
@@ -36,7 +38,7 @@ class GroupListFragment: Fragment(){
     private lateinit var adapter: GroupAdapter
     private lateinit var manager: LinearLayoutManager
 
-    private lateinit var database: FirebaseDatabase
+    private lateinit var database: FirebaseFirestore
 
     private lateinit var binding: FragmentGroupListBinding
 
@@ -47,13 +49,26 @@ class GroupListFragment: Fragment(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        var groups: ArrayList<Group> = ArrayList()
         auth = FirebaseAuth.getInstance().currentUser?.uid.toString()
-        database = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
-        var groupsRef = database.reference.child("groups")
-        val options = FirebaseRecyclerOptions.Builder<Group>()
-            .setQuery(database.reference.child("groups"), Group::class.java)
-            .build()
-        adapter = GroupAdapter(options)
+        database = FirebaseFirestore.getInstance()
+        Thread.sleep(1000)
+        database.collection("groups").whereNotEqualTo("id", null)
+            .addSnapshotListener(EventListener<QuerySnapshot>(){value: QuerySnapshot?, error: FirebaseFirestoreException? ->
+                if(error != null){
+                    Log.w(TAG, "Listen failed.", error)
+                }
+
+                value?.forEach { value ->
+                    if(value.get("owner").toString().equals(auth)){
+                        groups.add(value.toObject(Group::class.java))
+                    }
+                }
+                Toast.makeText(context, "CURRENT GROUPS:"+ groups, Toast.LENGTH_SHORT).show()
+            })
+
+
+        adapter = GroupAdapter(groups)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
         Log.d(TAG, "onCreate")
@@ -93,14 +108,19 @@ class GroupListFragment: Fragment(){
         callbacks = null
     }
 
+    override fun onStart() {
+        super.onStart()
+        adapter.notifyDataSetChanged()
+    }
+
     override fun onPause() {
-        adapter.stopListening()
+        adapter.notifyDataSetChanged()
         super.onPause()
     }
 
     override fun onResume() {
         super.onResume()
-        adapter.startListening()
+        adapter.notifyDataSetChanged()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -152,30 +172,24 @@ class GroupListFragment: Fragment(){
      * ADAPTER
      */
     private inner class GroupAdapter(
-        private val options: FirebaseRecyclerOptions<Group>
-    ): FirebaseRecyclerAdapter<Group, RecyclerView.ViewHolder>(options){
+        private val groups: List<Group>
+    ): RecyclerView.Adapter<GroupHolder>(){
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupHolder {
             val view = layoutInflater.inflate(R.layout.list_group_item, parent, false)
             return GroupHolder(view)
         }
 
-        override fun getItemViewType(position: Int): Int {
-            return 1
+        override fun getItemCount(): Int {
+            return groups.size
         }
 
         override fun onBindViewHolder(
-            holder: RecyclerView.ViewHolder,
-            position: Int,
-            model: Group
+            holder: GroupHolder,
+            position: Int
         ) {
-            if(options.snapshots[position].owner != null){
-                Log.d(TAG, "OnBindViewHolder")
-                (holder as GroupHolder).bind(model)
-                Log.d(TAG, "OnBindViewHolder")
-            }
-
-
+           val group = groups[position]
+            holder.bind(group)
         }
 
     }
