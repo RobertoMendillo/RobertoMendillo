@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
         var fragment = ChatFragment.newInstance(group)
         var bundle = Bundle()
         bundle.putSerializable("group", group)
-        bundle.putSerializable("User", auth.currentUser?.email.toString())
+        bundle.putSerializable(USER, auth.currentUser?.email.toString())
         fragment.arguments = bundle
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
     }
@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
     companion object{
         const val GROUPS = "groups"
         const val MEMBERS = "members"
+        const val USER = "user"
     }
 
 }

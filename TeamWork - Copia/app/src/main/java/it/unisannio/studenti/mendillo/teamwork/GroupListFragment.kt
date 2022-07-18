@@ -52,6 +52,7 @@ class GroupListFragment: Fragment(){
         var groups: ArrayList<Group> = ArrayList()
         auth = FirebaseAuth.getInstance().currentUser?.uid.toString()
         database = FirebaseFirestore.getInstance()
+        var source = Source.SERVER
         Thread.sleep(1000)
         database.collection("groups").whereNotEqualTo("id", null)
             .addSnapshotListener(EventListener<QuerySnapshot>(){value: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -66,7 +67,6 @@ class GroupListFragment: Fragment(){
                 }
                 Toast.makeText(context, "CURRENT GROUPS:"+ groups, Toast.LENGTH_SHORT).show()
             })
-
 
         adapter = GroupAdapter(groups)
         manager = WrapContentLinearLayoutManager(context)

@@ -44,7 +44,9 @@ class GroupCreationFragment: Fragment() {
         membersRef = db.collection(MainActivity.GROUPS).document("${group.id}").collection("members").document("list")
         membersRef.get()
             .addOnSuccessListener {
-                group.members = it["members"] as ArrayList<String> /* = java.util.ArrayList<kotlin.String> */
+                if(it.exists()){
+                    group.members = it["members"] as ArrayList<String> /* = java.util.ArrayList<kotlin.String> */
+                }
                 Log.d(TAG, "MEMBERS"+group.members.toString())
                 }
         Log.d(TAG, "${group.id}")

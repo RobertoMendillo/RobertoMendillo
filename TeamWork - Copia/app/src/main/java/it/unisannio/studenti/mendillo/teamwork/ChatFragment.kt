@@ -51,12 +51,22 @@ class ChatFragment: Fragment() {
         group = arguments?.getSerializable("group") as Group
         Log.d(TAG, "args bundle group name: ${group.name}")
 
-        user = arguments?.getSerializable("User") as String
+        user = arguments?.getSerializable(MainActivity.USER) as String
 
         firestore= FirebaseFirestore.getInstance()
         messagesRef = firestore.collection(MainActivity.GROUPS).document("${group.id}").collection("messages")
+        messagesRef.get().addOnSuccessListener {
+            it.forEach{ doc ->
+                var mapOfMessages = doc.get("messages") as ArrayList<Any>
+                mapOfMessages.forEach { message ->
+                    group.messages?.add(message as ChatMessage)
+                }
 
-        messagesRef.whereNotEqualTo("userName", null)
+            }
+            Toast.makeText(context, "CURRENT MESSGES:"+ group.messages, Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "CURRENT MESSGES:"+ group.messages)
+        }
+        /*messagesRef.whereNotEqualTo("userName", null)
             .addSnapshotListener(EventListener<QuerySnapshot>(){ value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if(error != null){
                     Log.w(GroupListFragment.TAG, "Listen failed.", error)
@@ -67,7 +77,7 @@ class ChatFragment: Fragment() {
 
                 }
                 Toast.makeText(context, "CURRENT MESSGES:"+ group.messages, Toast.LENGTH_SHORT).show()
-            })
+            })*/
         adapter = ChatMessageAdapter(group.messages!!)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
@@ -138,17 +148,20 @@ class ChatFragment: Fragment() {
                 var auth = FirebaseAuth.getInstance().currentUser?.uid
                 if (auth.equals("${group.owner}") && group.members?.size == 0){
                     firestore.collection(MainActivity.GROUPS).document("${group.id}").delete()
-                    Log.d(TAG, "DELETE GROUP")
-                    parentFragmentManager.beginTransaction().remove(this).commit()
-                    parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
+                        .addOnSuccessListener {
+                            Log.d(TAG, "DELETE GROUP")
+                            parentFragmentManager.beginTransaction().remove(this).commit()
+                            parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
+                        }
+                        .addOnFailureListener{
+                            Toast.makeText(context, "Deletion failed: "+ it.toString(), Toast.LENGTH_SHORT)
+                        }
                 }
                 else if(!auth.equals("$group.uid")){
                     Toast.makeText(context, "PERMISSION DENIED: you are not the owner!", Toast.LENGTH_SHORT ).show()
                 }else{
                     Toast.makeText(context, "${PERMISSION_DENIED}: The group is not empty", Toast.LENGTH_SHORT).show()
                 }
-
-                //TODO DELETE GROUP
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
