@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.model.Group
 
@@ -45,10 +46,14 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
         supportFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
     }
 
+
+
+
     companion object{
         const val GROUPS = "groups"
         const val MEMBERS = "members"
         const val USER = "user"
+
     }
 
 }

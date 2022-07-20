@@ -26,5 +26,8 @@
     <string name="remove_member_button">Remove</string>
     <string name="modify_group">Modify</string>
     <string name="delete_group">Delete</string>
+    <string name="group_image_hint">Insert an image for your group</string>
+    <string name="quit_group">Quit</string>
+    <string name="refresh_list_groups">Sync</string>
 
 </resources>

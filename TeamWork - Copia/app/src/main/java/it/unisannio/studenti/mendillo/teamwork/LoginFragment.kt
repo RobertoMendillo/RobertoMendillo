@@ -90,6 +90,9 @@ class LoginFragment: Fragment() {
                    goToGroupListFragment(email)
                }
            }
+           .addOnFailureListener(requireActivity()){
+               Log.d(TAG, "Error", it)
+           }
    }
 
     private fun validateForm(): Boolean{

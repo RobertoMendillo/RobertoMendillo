@@ -46,14 +46,16 @@ class ChatFragment: Fragment() {
     private lateinit var binding: FragmentChatBinding
     private lateinit var chatMessageRecyclerView: RecyclerView
     private lateinit var adapter: ChatMessageAdapter
+    private lateinit var uid: String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         group = arguments?.getSerializable("group") as Group
+        arguments?.remove("group")
         Log.d(TAG, "args bundle group name: ${group.name}")
-
+        uid = FirebaseAuth.getInstance().currentUser?.uid.toString()
         user = arguments?.getSerializable(MainActivity.USER) as String
 
         firestore= FirebaseFirestore.getInstance()
@@ -131,9 +133,23 @@ class ChatFragment: Fragment() {
             R.id.modify_group ->{
                 val bundle = Bundle()
                 bundle.putSerializable("group", group)
-                val fragment = GroupCreationFragment()
-                fragment.arguments = bundle
-                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
+
+                if(uid == group.owner){
+                    val fragment = GroupCreationFragment()
+                    fragment.arguments = bundle
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }else{
+                    val fragment = GroupFragment()
+                    fragment.arguments = bundle
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit()
+                }
+
                 return true
             }
             R.id.delete_group ->{

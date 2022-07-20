@@ -18,9 +18,12 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
+import com.google.firebase.firestore.ktx.getField
+import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
+import it.unisannio.studenti.mendillo.teamwork.model.Participant
 import javax.annotation.Nullable
 
 
@@ -44,34 +47,59 @@ class GroupListFragment: Fragment(){
 
     private lateinit var auth: String
 
+    private var groups: HashMap<String, Group> = HashMap()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
-        var groups: ArrayList<Group> = ArrayList()
-        auth = FirebaseAuth.getInstance().currentUser?.uid.toString()
+
+        val authReference = FirebaseAuth.getInstance()
+        auth = authReference.currentUser?.uid.toString()
         database = FirebaseFirestore.getInstance()
-        var source = Source.SERVER
-        Thread.sleep(1000)
-        database.collection("groups").whereNotEqualTo("id", null)
+        var groupsRef = database.collection(MainActivity.GROUPS)
+
+        // Query dei gruppi
+        groupsRef.whereEqualTo("owner", auth).get()
+            .addOnSuccessListener {value ->
+                // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
+                value?.forEach { entry ->
+                    var group = entry.toObject(Group::class.java)
+                    Log.d(TAG, "Group: ${group.toString()}")
+                    groups.put(group.id!!, group)
+                    Log.d(TAG, "Groups: ${groups.toString()}")
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Listen failed", e)
+            }
+    /*
+        groupsRef.whereEqualTo("owner", auth)
             .addSnapshotListener(EventListener<QuerySnapshot>(){value: QuerySnapshot?, error: FirebaseFirestoreException? ->
                 if(error != null){
                     Log.w(TAG, "Listen failed.", error)
                 }
 
-                value?.forEach { value ->
-                    if(value.get("owner").toString().equals(auth)){
-                        groups.add(value.toObject(Group::class.java))
-                    }
+                // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
+                value?.forEach { entry ->
+                    var group = entry.toObject(Group::class.java)
+                    Log.d(TAG, "Group: ${group.toString()}")
+                    groups.put(group.id!!, group)
+                    Log.d(TAG, "Groups: ${groups.toString()}")
                 }
-                Toast.makeText(context, "CURRENT GROUPS:"+ groups, Toast.LENGTH_SHORT).show()
-            })
 
-        adapter = GroupAdapter(groups)
+            })
+    */
+
+        Toast.makeText(context, "CURRENT GROUPS:"+ groups, Toast.LENGTH_SHORT).show()
+        val listOfGroups : ArrayList<Group> = ArrayList()
+        groups.forEach { entry ->
+            listOfGroups.add(entry.value)
+        }
+        adapter = GroupAdapter(listOfGroups)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
-        Log.d(TAG, "onCreate")
+        Log.d(TAG, "onCreate - "+ groups.toString())
     }
 
     override fun onCreateView(
@@ -96,6 +124,7 @@ class GroupListFragment: Fragment(){
             val fragment = GroupCreationFragment.newInstance()
             parentFragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).addToBackStack(null).commit()
         }
+        Log.d(TAG, "onViewCreated")
     }
 
     override fun onAttach(context: Context) {
@@ -137,7 +166,37 @@ class GroupListFragment: Fragment(){
                     .replace(R.id.fragment_container, fragment)
                     .addToBackStack(null).commit()
                 true
-            }else -> {
+            }
+            R.id.sync -> {
+
+                database = FirebaseFirestore.getInstance()
+                var groupsRef = database.collection(MainActivity.GROUPS)
+
+                // Query dei gruppi
+                groupsRef.whereNotEqualTo("id", null).get()
+                    .addOnSuccessListener {value ->
+                        // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
+                        value?.forEach { entry ->
+                            var group = entry.toObject(Group::class.java)
+                            Log.d(TAG, "Group: ${group.toString()}")
+                            groups.put(group.id!!, group)
+                            Log.d(TAG, "Groups: ${groups.toString()}")
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Listen failed", e)
+                    }
+
+                val listOfGroups : ArrayList<Group> = ArrayList()
+                groups.forEach { entry ->
+                    listOfGroups.add(entry.value)
+                }
+                adapter = GroupAdapter(listOfGroups)
+                binding.groupListRecycleView.adapter = adapter
+                adapter.notifyDataSetChanged()
+                true
+            }
+            else -> {
                 return super.onOptionsItemSelected(item)
             }
         }
@@ -172,8 +231,10 @@ class GroupListFragment: Fragment(){
      * ADAPTER
      */
     private inner class GroupAdapter(
-        private val groups: List<Group>
+        private val listOfGroups : ArrayList<Group>
     ): RecyclerView.Adapter<GroupHolder>(){
+
+
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroupHolder {
             val view = layoutInflater.inflate(R.layout.list_group_item, parent, false)
@@ -181,14 +242,14 @@ class GroupListFragment: Fragment(){
         }
 
         override fun getItemCount(): Int {
-            return groups.size
+            return listOfGroups.size
         }
 
         override fun onBindViewHolder(
             holder: GroupHolder,
             position: Int
         ) {
-           val group = groups[position]
+           val group = listOfGroups[position]
             holder.bind(group)
         }
 
