@@ -116,12 +116,14 @@ class GroupCreationFragment: Fragment() {
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
             }else{
+                val data: Participant = Participant(email, Role.PARTECIPANT)
                 group.members?.put(email, "participant")
                 db.collection(MainActivity.GROUPS)
                     .document("${group.id}")
-                    //.collection(MainActivity.MEMBERS)
-                    //.document(email)
-                    .set(group)
+                    .collection(MainActivity.MEMBERS)
+                    .document(email)
+                    //.set(group)
+                    .set(data)
                     .addOnSuccessListener { Log.d(TAG, "Document successfully written!") }
                     .addOnFailureListener {e -> Log.w(TAG, "Error writing document", e)}
             }

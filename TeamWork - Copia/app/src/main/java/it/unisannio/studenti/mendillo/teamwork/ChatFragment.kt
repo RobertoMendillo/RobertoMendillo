@@ -76,7 +76,6 @@ class ChatFragment: Fragment() {
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
 
-
     }
 
     override fun onCreateView(
@@ -91,12 +90,15 @@ class ChatFragment: Fragment() {
         chatMessageRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.editTextChat.addTextChangedListener(SendButtonObserver(binding.sendMessageButton))
 
+        adapter.registerAdapterDataObserver(
+            ScrollToBottomObserver(binding.recyclerViewChat)
+        )
+
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         var sendButton: Button = binding.sendMessageButton
         sendButton.setOnClickListener{

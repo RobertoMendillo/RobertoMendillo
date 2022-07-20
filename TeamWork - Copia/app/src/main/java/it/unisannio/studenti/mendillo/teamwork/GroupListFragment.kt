@@ -47,6 +47,8 @@ class GroupListFragment: Fragment(){
 
     private lateinit var auth: String
 
+
+
     private var groups: HashMap<String, Group> = HashMap()
 
 
@@ -60,7 +62,7 @@ class GroupListFragment: Fragment(){
         var groupsRef = database.collection(MainActivity.GROUPS)
 
         // Query dei gruppi
-        groupsRef.whereEqualTo("owner", auth).get()
+       /* groupsRef.whereEqualTo("owner", auth).get()
             .addOnSuccessListener {value ->
                 // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
                 value?.forEach { entry ->
@@ -72,7 +74,7 @@ class GroupListFragment: Fragment(){
             }
             .addOnFailureListener { e ->
                 Log.w(TAG, "Listen failed", e)
-            }
+            }*/
     /*
         groupsRef.whereEqualTo("owner", auth)
             .addSnapshotListener(EventListener<QuerySnapshot>(){value: QuerySnapshot?, error: FirebaseFirestoreException? ->
@@ -172,8 +174,10 @@ class GroupListFragment: Fragment(){
                 database = FirebaseFirestore.getInstance()
                 var groupsRef = database.collection(MainActivity.GROUPS)
 
+                Log.d(TAG, "UTENTE:"+FirebaseAuth.getInstance().currentUser?.email.toString())
+
                 // Query dei gruppi
-                groupsRef.whereNotEqualTo("id", null).get()
+                /*groupsRef.whereIn("members", listOf( FirebaseAuth.getInstance().currentUser?.email)).get()
                     .addOnSuccessListener {value ->
                         // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
                         value?.forEach { entry ->
@@ -186,6 +190,50 @@ class GroupListFragment: Fragment(){
                     .addOnFailureListener { e ->
                         Log.w(TAG, "Listen failed", e)
                     }
+
+                 */
+
+                /*groupsRef.get()
+                    .addOnSuccessListener {value ->
+                        // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
+                        value?.forEach { entry ->
+                            var group = entry.toObject(Group::class.java)
+                            Log.d(TAG, "Group: ${group.toString()}")
+                            groups.put(group.id!!, group)
+                            Log.d(TAG, "Groups: ${groups.toString()}")
+
+
+                        }
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(TAG, "Listen failed", e)
+                    }*/
+
+                database.collection("users")
+                    .document(FirebaseAuth.getInstance().currentUser?.email.toString())
+                    .get()
+                    .addOnSuccessListener { value ->
+                        Log.d(TAG, ""+value.toString())
+                        val data = value.get("groups") as HashMap<String, String>
+                        data.forEach {entry ->
+                            groupsRef.document(entry.key).get()
+                                .addOnSuccessListener { value ->
+                                    groups.put(value.id, value.toObject(Group::class.java)!!)
+                                    Log.d(TAG, "GROUP:" + value)
+                                }
+                        }
+                    }
+
+                /*groupsRef.document("3ae1be7c-9f1d-4843-8b58-bd48ab5fb3cd").get()
+                    .addOnSuccessListener { value ->
+                        groups.put(value.id, value.toObject(Group::class.java)!!)
+                        Log.d(TAG, "GROUP:" + value)
+                    }
+                */
+
+
+
+
 
                 val listOfGroups : ArrayList<Group> = ArrayList()
                 groups.forEach { entry ->

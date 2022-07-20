@@ -42,7 +42,7 @@ class MemberHolder(view: View): RecyclerView.ViewHolder(view){
     private val memberEmail: TextView = view.findViewById(R.id.member_email)
 
     fun bind(participant: String){
-        this.attende = attende
+        this.attende = participant
         memberEmail.text = this.attende
     }
 
