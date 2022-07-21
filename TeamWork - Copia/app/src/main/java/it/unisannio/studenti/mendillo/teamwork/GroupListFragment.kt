@@ -9,22 +9,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.database.FirebaseRecyclerAdapter
-import com.firebase.ui.database.FirebaseRecyclerOptions
-import com.google.android.gms.tasks.Task
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.*
-import com.google.firebase.firestore.ktx.getField
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupListBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
-import it.unisannio.studenti.mendillo.teamwork.model.Participant
-import javax.annotation.Nullable
 
 
 class GroupListFragment: Fragment(){
@@ -45,63 +37,23 @@ class GroupListFragment: Fragment(){
 
     private lateinit var binding: FragmentGroupListBinding
 
-    private lateinit var auth: String
+    private var auth: FirebaseUser? = null
 
-
-
-    private var groups: HashMap<String, Group> = HashMap()
-
+    private lateinit var groups: HashMap<String, Group>
+    private val groupRepository = GroupRepository.get()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
         val authReference = FirebaseAuth.getInstance()
-        auth = authReference.currentUser?.uid.toString()
+        auth = authReference.currentUser
         database = FirebaseFirestore.getInstance()
-        var groupsRef = database.collection(MainActivity.GROUPS)
-
-        // Query dei gruppi
-       /* groupsRef.whereEqualTo("owner", auth).get()
-            .addOnSuccessListener {value ->
-                // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
-                value?.forEach { entry ->
-                    var group = entry.toObject(Group::class.java)
-                    Log.d(TAG, "Group: ${group.toString()}")
-                    groups.put(group.id!!, group)
-                    Log.d(TAG, "Groups: ${groups.toString()}")
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.w(TAG, "Listen failed", e)
-            }*/
-    /*
-        groupsRef.whereEqualTo("owner", auth)
-            .addSnapshotListener(EventListener<QuerySnapshot>(){value: QuerySnapshot?, error: FirebaseFirestoreException? ->
-                if(error != null){
-                    Log.w(TAG, "Listen failed.", error)
-                }
-
-                // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
-                value?.forEach { entry ->
-                    var group = entry.toObject(Group::class.java)
-                    Log.d(TAG, "Group: ${group.toString()}")
-                    groups.put(group.id!!, group)
-                    Log.d(TAG, "Groups: ${groups.toString()}")
-                }
-
-            })
-    */
-
-        Toast.makeText(context, "CURRENT GROUPS:"+ groups, Toast.LENGTH_SHORT).show()
-        val listOfGroups : ArrayList<Group> = ArrayList()
-        groups.forEach { entry ->
-            listOfGroups.add(entry.value)
-        }
-        adapter = GroupAdapter(listOfGroups)
+        groupRepository.getGroups(auth!!)
+        adapter = GroupAdapter(groupRepository.toList())
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
-        Log.d(TAG, "onCreate - "+ groups.toString())
+        Log.d(TAG, "onCreate")
     }
 
     override fun onCreateView(
@@ -139,16 +91,6 @@ class GroupListFragment: Fragment(){
         callbacks = null
     }
 
-    override fun onStart() {
-        super.onStart()
-        adapter.notifyDataSetChanged()
-    }
-
-    override fun onPause() {
-        adapter.notifyDataSetChanged()
-        super.onPause()
-    }
-
     override fun onResume() {
         super.onResume()
         adapter.notifyDataSetChanged()
@@ -171,75 +113,10 @@ class GroupListFragment: Fragment(){
             }
             R.id.sync -> {
 
-                database = FirebaseFirestore.getInstance()
-                var groupsRef = database.collection(MainActivity.GROUPS)
-
                 Log.d(TAG, "UTENTE:"+FirebaseAuth.getInstance().currentUser?.email.toString())
 
-                // Query dei gruppi
-                /*groupsRef.whereIn("members", listOf( FirebaseAuth.getInstance().currentUser?.email)).get()
-                    .addOnSuccessListener {value ->
-                        // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
-                        value?.forEach { entry ->
-                            var group = entry.toObject(Group::class.java)
-                            Log.d(TAG, "Group: ${group.toString()}")
-                            groups.put(group.id!!, group)
-                            Log.d(TAG, "Groups: ${groups.toString()}")
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w(TAG, "Listen failed", e)
-                    }
-
-                 */
-
-                /*groupsRef.get()
-                    .addOnSuccessListener {value ->
-                        // Ogni documento ricevuto dalla query viene convertito in oggetto e aggiunto all'HashMap dei gruppi
-                        value?.forEach { entry ->
-                            var group = entry.toObject(Group::class.java)
-                            Log.d(TAG, "Group: ${group.toString()}")
-                            groups.put(group.id!!, group)
-                            Log.d(TAG, "Groups: ${groups.toString()}")
-
-
-                        }
-                    }
-                    .addOnFailureListener { e ->
-                        Log.w(TAG, "Listen failed", e)
-                    }*/
-
-                database.collection("users")
-                    .document(FirebaseAuth.getInstance().currentUser?.email.toString())
-                    .get()
-                    .addOnSuccessListener { value ->
-                        Log.d(TAG, ""+value.toString())
-                        val data = value.get("groups") as HashMap<String, String>
-                        data.forEach {entry ->
-                            groupsRef.document(entry.key).get()
-                                .addOnSuccessListener { value ->
-                                    groups.put(value.id, value.toObject(Group::class.java)!!)
-                                    Log.d(TAG, "GROUP:" + value)
-                                }
-                        }
-                    }
-
-                /*groupsRef.document("3ae1be7c-9f1d-4843-8b58-bd48ab5fb3cd").get()
-                    .addOnSuccessListener { value ->
-                        groups.put(value.id, value.toObject(Group::class.java)!!)
-                        Log.d(TAG, "GROUP:" + value)
-                    }
-                */
-
-
-
-
-
-                val listOfGroups : ArrayList<Group> = ArrayList()
-                groups.forEach { entry ->
-                    listOfGroups.add(entry.value)
-                }
-                adapter = GroupAdapter(listOfGroups)
+                groupRepository.getGroups(auth!!)
+                adapter = GroupAdapter(groupRepository.toList())
                 binding.groupListRecycleView.adapter = adapter
                 adapter.notifyDataSetChanged()
                 true

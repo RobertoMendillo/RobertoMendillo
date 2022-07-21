@@ -21,8 +21,7 @@ class SignupFragment: Fragment(){
     private lateinit var auth: FirebaseAuth
     private lateinit var binding: FragmentSignupBinding
 
-    private var db = FirebaseDatabase.getInstance("https://teamwork-2110e-default-rtdb.europe-west1.firebasedatabase.app")
-        .reference.child("users")
+    private var db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +72,14 @@ class SignupFragment: Fragment(){
     }
 
     private fun addUserToDatabase(email: String){
-        db.push().setValue(email)
+        var data: HashMap<String, Any?> = HashMap()
+        var groups: Map<String, String?> = HashMap()
+        data["email"] = email
+        data["groups"] = groups
+
+        db.collection(MainActivity.USERS)
+            .document(email)
+            .set(data)
     }
 
     private fun validateForm(): Boolean{

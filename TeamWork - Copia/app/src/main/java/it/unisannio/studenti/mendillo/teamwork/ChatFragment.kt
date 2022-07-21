@@ -61,7 +61,7 @@ class ChatFragment: Fragment() {
         firestore= FirebaseFirestore.getInstance()
         messagesRef = firestore.collection(MainActivity.GROUPS).document("${group.id}").collection("messages")
         group.messages?.clear()
-        messagesRef.orderBy("date").get().addOnSuccessListener {
+        messagesRef.orderBy("date")/*.get().addOnSuccessListener {
             it.forEach{ doc ->
                var message = doc.toObject(ChatMessage::class.java)
                 group.messages?.add(message)
@@ -70,6 +70,18 @@ class ChatFragment: Fragment() {
             Log.d(TAG, "CURRENT MESSGES:"+ group.messages)
         }.addOnCompleteListener {
             this.onResume()
+        }*/
+
+        /*messagesRef*/
+            .addSnapshotListener { value, error ->
+            if(error != null){
+                Log.w(TAG, "Error occurred", error)
+            }else{
+                group.messages?.clear()
+               for (doc in value!!){
+                   group.messages?.add(doc.toObject(ChatMessage::class.java))
+               }
+            }
         }
 
         adapter = ChatMessageAdapter(group.messages!!)
@@ -135,39 +147,30 @@ class ChatFragment: Fragment() {
             R.id.modify_group ->{
                 val bundle = Bundle()
                 bundle.putSerializable("group", group)
-
+                var fragment: Fragment? = null
                 if(uid == group.owner){
-                    val fragment = GroupCreationFragment()
+                    fragment = GroupCreationFragment()
                     fragment.arguments = bundle
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit()
                 }else{
-                    val fragment = GroupFragment()
+                    fragment = GroupFragment()
                     fragment.arguments = bundle
-                    parentFragmentManager.beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit()
                 }
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit()
 
                 return true
             }
             R.id.delete_group ->{
                 var auth = FirebaseAuth.getInstance().currentUser?.uid
-                if (auth.equals("${group.owner}") && group.members?.size == 0){
-                    firestore.collection(MainActivity.GROUPS).document("${group.id}").delete()
-                        .addOnSuccessListener {
-                            Log.d(TAG, "DELETE GROUP")
-                            parentFragmentManager.beginTransaction().remove(this).commit()
-                            parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
-                        }
-                        .addOnFailureListener{
-                            Toast.makeText(context, "Deletion failed: "+ it.toString(), Toast.LENGTH_SHORT)
-                        }
+                var email = FirebaseAuth.getInstance().currentUser?.email
+                if (auth.equals("${group.owner}") && group.members?.size == 1){
+                    GroupRepository.get().deleteGroup(email!!, group)
+                    parentFragmentManager.beginTransaction().remove(this).commit()
+                    parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
                 }
-                else if(!auth.equals("$group.uid")){
+                else if(!auth.equals("${group.owner}")){
                     Toast.makeText(context, "PERMISSION DENIED: you are not the owner!", Toast.LENGTH_SHORT ).show()
                 }else{
                     Toast.makeText(context, "${PERMISSION_DENIED}: The group is not empty", Toast.LENGTH_SHORT).show()

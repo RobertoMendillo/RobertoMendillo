@@ -5,7 +5,6 @@ import com.google.firebase.database.Exclude
 import it.unisannio.studenti.mendillo.teamwork.ChatMessage
 import it.unisannio.studenti.mendillo.teamwork.GroupCreationFragment
 import java.io.Serializable
-import it.unisannio.studenti.mendillo.teamwork.GroupCreationFragment.Role
 
 class Group: Serializable{
     @Exclude
@@ -18,11 +17,6 @@ class Group: Serializable{
     var name: String? = null
     var description: String? = null
     var owner: String? = null
-
-    init {
-        members = HashMap()
-        messages = ArrayList()
-    }
 
     constructor(){
         members = HashMap()

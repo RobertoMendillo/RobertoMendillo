@@ -4,21 +4,15 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.toObject
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupCreationBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
-import it.unisannio.studenti.mendillo.teamwork.model.Participant
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -36,9 +30,7 @@ class GroupCreationFragment: Fragment() {
     private lateinit var adapter: MemberAdapter
     private lateinit var membersRef: DocumentReference
 
-    enum class Role {
-        PARTECIPANT, OWNER
-    }
+    private val groupRepository = GroupRepository.get()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,46 +81,40 @@ class GroupCreationFragment: Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.createGroupButton.setOnClickListener{
-
             val name = binding.editTextGroupName.text.toString()
             if(TextUtils.isEmpty(name)){
                 binding.editTextGroupName.error = "Required"
             }
             else {
-                group.name = binding.editTextGroupName.text.toString()
+                var email = FirebaseAuth.getInstance().currentUser?.email.toString()
+                /* inizializzo i campi del gruppo */
+                group.name = name
                 group.description = binding.editTextGroupDescription.text.toString()
                 group.id = UUID.randomUUID().toString()
-                db.collection(MainActivity.GROUPS)
-                    .document("${group.id}")
-                    .set(group)
-                    .addOnSuccessListener {
-                        binding.editTextGroupName.error = null
-                        Log.d(TAG, "Group added with success "+ group.name)
-                        Toast.makeText(context, "Group ${group.name} added", Toast.LENGTH_SHORT).show()
-                        parentFragmentManager.beginTransaction()
-                            .replace(R.id.fragment_container, GroupListFragment.newInstance()).commit()
-                }
+                group.members?.put(email, "owner")
+
+                // aggiungo il gruppo nel database
+                groupRepository.createGroup(email, group)
+                binding.editTextGroupName.error = null
+
+                Toast.makeText(context, "Group ${group.name} added", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, GroupListFragment.newInstance()).commit()
             }
+
         }
 
         binding.addMemberButton.setOnClickListener{
             val email = binding.addMemberEditText.text.toString()
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
-            }else{
-                val data: Participant = Participant(email, Role.PARTECIPANT)
+            }else {
+                // aggiungo il membro al gruppo
                 group.members?.put(email, "participant")
-                db.collection(MainActivity.GROUPS)
-                    .document("${group.id}")
-                    .collection(MainActivity.MEMBERS)
-                    .document(email)
-                    //.set(group)
-                    .set(data)
-                    .addOnSuccessListener { Log.d(TAG, "Document successfully written!") }
-                    .addOnFailureListener {e -> Log.w(TAG, "Error writing document", e)}
+                // aggiungo il membro al gruppo nel database
+                groupRepository.addMemberToGroup(email, group)
+                binding.addMemberEditText.text.clear()
             }
-            binding.addMemberEditText.text.clear()
-
         }
 
         binding.removeMemberButton.setOnClickListener{
@@ -136,29 +122,17 @@ class GroupCreationFragment: Fragment() {
             if(TextUtils.isEmpty(email)){
                 binding.addMemberEditText.error = "Required"
             }else{
-                /*var participant: Participant? = null
-                group.members?.forEach{
-                    if(it.email.equals(email)) participant = it
-                }*/
+                // Rimuovo il membro dalla lista dei membri nel gruppo specifico
                 group.members?.remove(email)
-                db.collection(MainActivity.GROUPS)
-                    .document("${group.id}")/*
-                    .collection(MainActivity.MEMBERS)
-                    .document(email)*/
-                    .delete()
-                db.collection(MainActivity.GROUPS)
-                    .document("${group.id}")
-                    .set(group)
-                    .addOnSuccessListener {
-                        Toast.makeText(context, "$email removed", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnCompleteListener {
-                        adapter.notifyDataSetChanged()
-                    }
+                // Rimuovo il membro dal gruppo nel database
+                groupRepository.removeMemberToGroup(email, group)
+                Toast.makeText(context, "$email removed", Toast.LENGTH_SHORT).show()
             }
             binding.addMemberEditText.text.clear()
         }
     }
+
+
 
     override fun onStart() {
         super.onStart()
@@ -174,6 +148,7 @@ class GroupCreationFragment: Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_group_creation, menu)
     }
+
 
 
 

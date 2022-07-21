@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
 
     companion object{
         const val GROUPS = "groups"
+        const val USERS = "users"
         const val MEMBERS = "members"
         const val USER = "user"
 

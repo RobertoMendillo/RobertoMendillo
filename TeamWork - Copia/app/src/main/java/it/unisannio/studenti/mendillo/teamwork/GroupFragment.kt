@@ -3,6 +3,7 @@ package it.unisannio.studenti.mendillo.teamwork
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import com.google.firebase.auth.FirebaseAuth
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
 
@@ -46,7 +47,8 @@ class GroupFragment: Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
             R.id.quit_group -> {
-                parentFragmentManager.beginTransaction().remove(this).commit()
+                GroupRepository.get().removeMemberToGroup(FirebaseAuth.getInstance().currentUser?.email!!, group)
+                parentFragmentManager.beginTransaction().replace(R.id.fragment_container, GroupListFragment()).commit()
                 true
             }else -> {
                 return super.onOptionsItemSelected(item)

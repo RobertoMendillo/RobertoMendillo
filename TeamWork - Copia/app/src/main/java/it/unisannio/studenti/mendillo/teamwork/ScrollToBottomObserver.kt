@@ -8,4 +8,9 @@ class ScrollToBottomObserver(
         super.onItemRangeChanged(positionStart, itemCount)
         recycler.scrollToPosition(positionStart)
     }
+
+    override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
+        super.onItemRangeChanged(positionStart, itemCount, payload)
+        recycler.scrollToPosition(positionStart)
+    }
 }
