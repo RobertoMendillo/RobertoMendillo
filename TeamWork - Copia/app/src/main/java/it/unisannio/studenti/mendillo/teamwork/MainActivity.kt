@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity(), GroupListFragment.Callbacks {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         //Inizializza Firebase auth e verifica se l'utente ha effettuato il login
-        auth = Firebase.auth
+        auth = FirebaseAuth.getInstance()
         if(auth.currentUser == null){
             Log.d("MAINACTIVITY", "START AUTHENTICATION ACTIVITY")
             // L'utente non è loggato, viene lanciata l'activity per effettuare il login

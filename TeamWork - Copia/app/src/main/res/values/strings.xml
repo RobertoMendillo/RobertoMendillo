@@ -16,7 +16,7 @@
     <!-- chat and groups    -->
     <string name="send_button">Send</string>
     <string name="text_message_hint">Write here your message</string>
-    <string name="group_name_label">Group name</string>
+    <string name="group_name_label">Group name:</string>
     <string name="group_name_hint">Write the group name</string>
     <string name="group_description_label">Description</string>
     <string name="group_description_hint">Write a description for the group</string>

@@ -38,6 +38,7 @@ class SignupFragment: Fragment(){
         binding.signupButton.setOnClickListener{
             val email = binding.signupEmailEdittext.text.toString()
             val password = binding.signupPasswordEdittext.text.toString()
+            val passwordConfirm = binding.signupConfirmPasswordEdittext.text.toString()
             createAccount(email, password)
         }
 
@@ -96,11 +97,17 @@ class SignupFragment: Fragment(){
 
         // verifichiamo che il campo password sia stato inserito
         val password = binding.signupPasswordEdittext.text.toString()
-        if(TextUtils.isEmpty(password)){
+        val passwordConfirm = binding.signupConfirmPasswordEdittext.text.toString()
+        if(TextUtils.isEmpty(password) || TextUtils.isEmpty(passwordConfirm)){
             binding.signupPasswordEdittext.error = "Required"
+            binding.signupConfirmPasswordEdittext.error = "Required"
             valid = false
+        }else if(password != passwordConfirm){
+            binding.signupConfirmPasswordEdittext.error = "Passwords must be equal"
+            binding.signupEmailEdittext.error = "Passwords must be equal"
         }else{
             binding.signupPasswordEdittext.error = null
+            binding.signupConfirmPasswordEdittext.error = null
         }
 
         return valid

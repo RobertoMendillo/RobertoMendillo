@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/group_name_label"
+        android:textSize="20sp"
         android:layout_margin="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -18,9 +19,9 @@
         android:id="@+id/group_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TextView"
         android:layout_margin="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:text="TextView"
+        android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/group_name_label"
         app:layout_constraintTop_toTopOf="parent" />
 
