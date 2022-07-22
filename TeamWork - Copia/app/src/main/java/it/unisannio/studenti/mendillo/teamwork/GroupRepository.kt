@@ -64,41 +64,45 @@ class GroupRepository {
     }
 
     fun addMemberToGroup(email: String, group: Group){
-        database.collection(MainActivity.GROUPS)
-            .document("${group.id}")
-            .update("members", group.members)
-            .addOnSuccessListener { Log.d(TAG, "Document successfully written!") }
-            .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
+        executor.execute {
+            database.collection(MainActivity.GROUPS)
+                .document("${group.id}")
+                .update("members", group.members)
+                .addOnSuccessListener { Log.d(TAG, "Document successfully written!") }
+                .addOnFailureListener { e -> Log.w(TAG, "Error writing document", e) }
 
-        addGroupToGroupList(email, group)
+            addGroupToGroupList(email, group)
+        }
     }
 
     fun removeMemberToGroup(email: String, group: Group){
-        group.members?.remove(email)
-        database.collection(MainActivity.GROUPS)
-            .document("${group.id}")
-            .delete()
-        database.collection(MainActivity.GROUPS)
-            .document("${group.id}")
-            .set(group)
-            .addOnSuccessListener {
-            }
+        executor.execute {
+            group.members?.remove(email)
+            database.collection(MainActivity.GROUPS)
+                .document("${group.id}")
+                .delete()
+            database.collection(MainActivity.GROUPS)
+                .document("${group.id}")
+                .set(group)
+                .addOnSuccessListener {
+                }
 
-        /* Rimuovo il gruppo dalla mappa dei gruppi accessibili dall'utente */
-        // recupero la mappa (group id: ruolo)
-        var participantGroups: HashMap<String, String> = HashMap()
-        database.collection(MainActivity.USERS)
-            .document(email)
-            .get()
-            .addOnSuccessListener { value ->
-                participantGroups = value.get("groups") as HashMap<String, String>
-            }
-        // rimuovo il gruppo corrente dalla mappa
-        participantGroups.remove(group.id)
-        // aggiorno la mappa nel database
-        database.collection(MainActivity.USERS)
-            .document(email)
-            .update("groups", participantGroups)
+            /* Rimuovo il gruppo dalla mappa dei gruppi accessibili dall'utente */
+            // recupero la mappa (group id: ruolo)
+            var participantGroups: HashMap<String, String> = HashMap()
+            database.collection(MainActivity.USERS)
+                .document(email)
+                .get()
+                .addOnSuccessListener { value ->
+                    participantGroups = value.get("groups") as HashMap<String, String>
+                }
+            // rimuovo il gruppo corrente dalla mappa
+            participantGroups.remove(group.id)
+            // aggiorno la mappa nel database
+            database.collection(MainActivity.USERS)
+                .document(email)
+                .update("groups", participantGroups)
+        }
     }
 
     private fun addGroupToGroupList(email:String, group: Group){
@@ -129,19 +133,20 @@ class GroupRepository {
     }
 
     fun deleteGroup(email: String, group: Group){
-        database.collection(MainActivity.GROUPS).document("${group.id}").delete()
-            .addOnSuccessListener {
-                Log.d(ChatFragment.TAG, "DELETED GROUP ${group.name}")
-            }
-            .addOnFailureListener{ e ->
-                Log.w(TAG, "Deletion failed: "+ e.toString())
-            }
+        executor.execute {
+            database.collection(MainActivity.GROUPS).document("${group.id}").delete()
+                .addOnSuccessListener {
+                    Log.d(ChatFragment.TAG, "DELETED GROUP ${group.name}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(TAG, "Deletion failed: " + e.toString())
+                }
 
-        database.collection(MainActivity.USERS)
-            .document(email)
-            .get().addOnSuccessListener { value->
-                (value.get("groups") as HashMap<String, String>).remove(group.id)
-            }
+            database.collection(MainActivity.USERS)
+                .document(email)
+                .get().addOnSuccessListener { value ->
+                    (value.get("groups") as HashMap<String, String>).remove(group.id)
+                }
             /*.addSnapshotListener{ value, e ->
                 if(e != null){
                     Log.w(TAG, "Error ", e)
@@ -150,6 +155,28 @@ class GroupRepository {
                     data.remove(group.id)
                 }
             }*/
+        }
+    }
+
+    fun getMessages(group: Group, adapter: ChatMessageAdapter): ArrayList<ChatMessage>{
+        executor.execute {
+            database.collection(MainActivity.GROUPS)
+                .document("${group.id}")
+                .collection("messages")
+                .orderBy("date")
+                .addSnapshotListener { value, error ->
+                    if (error != null) {
+                        Log.w(ChatFragment.TAG, "Error occurred", error)
+                    } else {
+                        group.messages?.clear()
+                        for (doc in value!!) {
+                            group.messages?.add(doc.toObject(ChatMessage::class.java))
+                        }
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+        }
+        return group.messages!!
     }
 
     fun toList(): ArrayList<Group> {

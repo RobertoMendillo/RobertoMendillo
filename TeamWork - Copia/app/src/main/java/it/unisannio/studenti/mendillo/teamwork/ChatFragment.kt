@@ -60,31 +60,13 @@ class ChatFragment: Fragment() {
 
         firestore= FirebaseFirestore.getInstance()
         messagesRef = firestore.collection(MainActivity.GROUPS).document("${group.id}").collection("messages")
+        // pulisco la cache
         group.messages?.clear()
-        messagesRef.orderBy("date")/*.get().addOnSuccessListener {
-            it.forEach{ doc ->
-               var message = doc.toObject(ChatMessage::class.java)
-                group.messages?.add(message)
-                Log.d(TAG, group.messages.toString())
-            }
-            Log.d(TAG, "CURRENT MESSGES:"+ group.messages)
-        }.addOnCompleteListener {
-            this.onResume()
-        }*/
 
-        /*messagesRef*/
-            .addSnapshotListener { value, error ->
-            if(error != null){
-                Log.w(TAG, "Error occurred", error)
-            }else{
-                group.messages?.clear()
-               for (doc in value!!){
-                   group.messages?.add(doc.toObject(ChatMessage::class.java))
-               }
-            }
-        }
+        adapter = ChatMessageAdapter(group.messages!!, layoutInflater)
 
-        adapter = ChatMessageAdapter(group.messages!!)
+        // recupero i messaggi dal database
+        group.messages = GroupRepository.get().getMessages(group, adapter)
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true
 
@@ -102,8 +84,10 @@ class ChatFragment: Fragment() {
         chatMessageRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.editTextChat.addTextChangedListener(SendButtonObserver(binding.sendMessageButton))
 
+        // Scorri verso il basso quando arriva un nuovo messaggio
+        // Vedere MyScrollToBottomObserver per i dettagli
         adapter.registerAdapterDataObserver(
-            ScrollToBottomObserver(binding.recyclerViewChat)
+            ScrollToBottomObserver(binding.recyclerViewChat, group.messages!!)
         )
 
         return binding.root
@@ -189,50 +173,6 @@ class ChatFragment: Fragment() {
     override fun onResume() {
         super.onResume()
         adapter.notifyDataSetChanged()
-    }
-
-    /**
-     * HOLDER
-     */
-    private inner class ChatMessageHodler(view: View): RecyclerView.ViewHolder(view){
-
-        private lateinit var message: ChatMessage
-
-        private val userNameTextView: TextView = itemView.findViewById(R.id.user_name)
-        private val messageTextView: TextView = itemView.findViewById(R.id.message)
-
-        fun bind(chatMessage: ChatMessage){
-            this.message = chatMessage
-            userNameTextView.text = this.message.userName
-            messageTextView.text = this.message.message
-        }
-
-    }
-
-    /**
-     * ADAPTER
-     */
-    private inner class ChatMessageAdapter(
-        private val messages: List<ChatMessage>
-    ): RecyclerView.Adapter<ChatMessageHodler>(){
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatMessageHodler {
-            val view = layoutInflater.inflate(R.layout.chat_message_item, parent, false)
-            return ChatMessageHodler(view)
-        }
-
-        override fun getItemCount(): Int {
-            return messages.size
-        }
-
-        override fun onBindViewHolder(
-            holder: ChatMessageHodler,
-            position: Int
-        ) {
-            val message = messages[position]
-            holder.bind(message)
-        }
-
     }
 
     companion object{
