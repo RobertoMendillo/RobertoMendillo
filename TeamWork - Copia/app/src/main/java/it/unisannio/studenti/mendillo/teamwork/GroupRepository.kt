@@ -23,14 +23,14 @@ class GroupRepository {
 
     private val groups: HashMap<String, Group> = HashMap()
 
-    fun getGroups(user: FirebaseUser): HashMap<String, Group>{
+    fun getGroups(user: FirebaseUser, adapter: GroupAdapter): HashMap<String, Group>{
        executor.execute{
-            fetchGroups(user)
+           fetchGroups(user, adapter)
        }
        return this.groups
     }
 
-    private fun fetchGroups(user: FirebaseUser){
+    private fun fetchGroups(user: FirebaseUser, adapter: GroupAdapter){
         this.groups.clear()
         var groupsRef = database.collection(MainActivity.GROUPS)
         Log.d(TAG, "UTENTE:"+ user.email)
@@ -41,10 +41,21 @@ class GroupRepository {
                 Log.d(TAG, ""+value.toString())
                 val data = value.get("groups") as HashMap<String, String>
                 data.forEach {entry ->
-                    groupsRef.document(entry.key).get()
-                        .addOnSuccessListener { value ->
-                            this.groups.put(value.id, value.toObject(Group::class.java)!!)
-                            Log.d(GroupListFragment.TAG, "GROUP:" + value)
+                    groupsRef.document(entry.key)
+                        .addSnapshotListener{ value, e ->
+                            if(e != null){
+                                Log.w(TAG, "Error Listening groups", e)
+                            }else{
+                                if (value != null) {
+                                    this.groups.put(
+                                        value?.id!!,
+                                        value.toObject(Group::class.java)!!
+                                    )
+                                    Log.d(GroupListFragment.TAG, "GROUP:" + value)
+                                }
+                            }
+                            adapter.setContents(toList(groups))
+                            adapter.notifyDataSetChanged()
                         }
                 }
             }
@@ -91,17 +102,19 @@ class GroupRepository {
             // recupero la mappa (group id: ruolo)
             var participantGroups: HashMap<String, String> = HashMap()
             database.collection(MainActivity.USERS)
-                .document(email)
+                .document("$email")
                 .get()
                 .addOnSuccessListener { value ->
                     participantGroups = value.get("groups") as HashMap<String, String>
+                    // rimuovo il gruppo corrente dalla mappa
+                    participantGroups.remove(group.id)
                 }
-            // rimuovo il gruppo corrente dalla mappa
-            participantGroups.remove(group.id)
+
             // aggiorno la mappa nel database
             database.collection(MainActivity.USERS)
                 .document(email)
                 .update("groups", participantGroups)
+                .addOnSuccessListener { Log.d(TAG, "group.id removed") }
         }
     }
 
@@ -179,9 +192,9 @@ class GroupRepository {
         return group.messages!!
     }
 
-    fun toList(): ArrayList<Group> {
+    fun toList(map: HashMap<String, Group>): ArrayList<Group> {
         val listOfGroups : ArrayList<Group> = ArrayList()
-        groups.forEach { entry ->
+        map.forEach { entry ->
             listOfGroups.add(entry.value)
         }
         return listOfGroups
