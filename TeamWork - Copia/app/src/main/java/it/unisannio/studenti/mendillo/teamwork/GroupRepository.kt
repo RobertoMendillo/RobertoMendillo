@@ -118,7 +118,7 @@ class GroupRepository {
         }
     }
 
-    private fun addGroupToGroupList(email:String, group: Group){
+    /*private fun addGroupToGroupList(email:String, group: Group){
         var groups: HashMap<String, String> = HashMap()
         //var groups = Groups()
         val docRef = database.collection(MainActivity.USERS)
@@ -136,6 +136,9 @@ class GroupRepository {
                     groups.put(entry.key, entry.value)
                 }
             }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Add group to list failed", e)
+            }
 
         // aggiorno la mappa con i nuovi dati
         groups.put(group.id!!, "participant")
@@ -143,6 +146,35 @@ class GroupRepository {
         docRef.update("groups",groups)
             .addOnCompleteListener { Log.d(TAG, "Groups updated $groups") }
             .addOnFailureListener { e -> Log.w(TAG, "Groups update failed", e) }
+    }*/
+
+    private fun addGroupToGroupList(email:String, group: Group){
+        var groups: Groups? = null
+        val docRef = database.collection(MainActivity.USERS)
+            .document(email)
+        // recupero la lista dei gruppi a cui l'utente ha accesso
+        // DEBUG: Per qualche motivo a me ignoto l'accesso non va a buon fine e il
+        //        codice nel success listener non viene eseguito. Per cui non è
+        //        possibile aggiugere più di un gruppo per ogni utente
+        database.collection(MainActivity.USERS)
+            .document(email)
+            .get(Source.SERVER)
+            .addOnSuccessListener { value ->
+               groups = value.toObject(Groups::class.java)!!
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Add group to list failed", e)
+            }
+            .addOnCompleteListener {
+                // aggiorno la mappa con i nuovi dati
+                groups?.put(group.id!!, "participant")
+                Log.d(TAG, "Groups before SET $groups")
+                docRef.set(groups!!)
+                    .addOnCompleteListener { Log.d(TAG, "Groups updated $groups") }
+                    .addOnFailureListener { e -> Log.w(TAG, "Groups update failed", e) }
+            }
+
+
     }
 
     fun deleteGroup(email: String, group: Group){
