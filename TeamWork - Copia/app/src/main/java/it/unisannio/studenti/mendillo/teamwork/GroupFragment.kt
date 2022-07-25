@@ -3,6 +3,7 @@ package it.unisannio.studenti.mendillo.teamwork
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentGroupBinding
 import it.unisannio.studenti.mendillo.teamwork.model.Group
@@ -10,6 +11,7 @@ import it.unisannio.studenti.mendillo.teamwork.model.Group
 class GroupFragment: Fragment() {
 
     private lateinit var binding: FragmentGroupBinding
+    private lateinit var membersRecycleView: RecyclerView
     private lateinit var adapter: MemberAdapter
 
     private lateinit var group: Group
@@ -34,7 +36,8 @@ class GroupFragment: Fragment() {
 
         binding = FragmentGroupBinding.inflate(inflater, container, false)
         binding.groupName.text = group.name.toString()
-        binding.groupMembersRecycle.adapter = adapter
+        membersRecycleView = binding.groupMembersRecycle
+        membersRecycleView.adapter = adapter
 
         return binding.root
     }

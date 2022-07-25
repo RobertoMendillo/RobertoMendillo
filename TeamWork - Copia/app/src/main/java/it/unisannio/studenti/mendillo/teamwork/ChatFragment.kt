@@ -5,22 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Button
-import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.database.FirebaseRecyclerAdapter
-import com.firebase.ui.database.FirebaseRecyclerOptions
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.GenericTypeIndicator
 import com.google.firebase.firestore.*
-import com.google.firebase.firestore.ktx.toObject
 import it.unisannio.studenti.mendillo.teamwork.databinding.FragmentChatBinding
+import it.unisannio.studenti.mendillo.teamwork.model.ChatMessage
 import it.unisannio.studenti.mendillo.teamwork.model.Group
-import java.lang.reflect.Type
 
 internal class WrapContentLinearLayoutManager(c: Context?) : LinearLayoutManager(c) {
 
@@ -151,8 +144,8 @@ class ChatFragment: Fragment() {
                 var email = FirebaseAuth.getInstance().currentUser?.email
                 if (auth.equals("${group.owner}") && group.members?.size == 1){
                     GroupRepository.get().deleteGroup(email!!, group)
-                    parentFragmentManager.beginTransaction().remove(this).commit()
                     parentFragmentManager.beginTransaction().add(R.id.fragment_container, GroupListFragment()).commit()
+                    parentFragmentManager.beginTransaction().remove(this).commit()
                 }
                 else if(!auth.equals("${group.owner}")){
                     Toast.makeText(context, "PERMISSION DENIED: you are not the owner!", Toast.LENGTH_SHORT ).show()

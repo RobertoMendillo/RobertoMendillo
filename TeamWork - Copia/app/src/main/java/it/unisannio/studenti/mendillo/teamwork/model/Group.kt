@@ -1,9 +1,11 @@
 package it.unisannio.studenti.mendillo.teamwork.model
 
-import com.google.apphosting.datastore.testing.DatastoreTestTrace
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.Icon
+import android.media.Image
 import com.google.firebase.database.Exclude
-import it.unisannio.studenti.mendillo.teamwork.ChatMessage
-import it.unisannio.studenti.mendillo.teamwork.GroupCreationFragment
+import java.io.File
 import java.io.Serializable
 
 class Group: Serializable{
@@ -17,6 +19,7 @@ class Group: Serializable{
     var name: String? = null
     var description: String? = null
     var owner: String? = null
+    var picture: File? = null
 
     constructor(){
         members = HashMap()

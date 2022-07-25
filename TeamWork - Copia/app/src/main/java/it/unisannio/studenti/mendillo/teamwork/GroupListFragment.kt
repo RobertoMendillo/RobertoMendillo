@@ -30,7 +30,7 @@ class GroupListFragment: Fragment(){
     private var callbacks: Callbacks? = null
 
     private lateinit var groupRecycleView: RecyclerView
-    private lateinit var adapter: GroupAdapter
+    lateinit var adapter: GroupAdapter
     private lateinit var manager: LinearLayoutManager
 
     private lateinit var database: FirebaseFirestore
@@ -50,7 +50,7 @@ class GroupListFragment: Fragment(){
         auth = authReference.currentUser
         database = FirebaseFirestore.getInstance()
         adapter = GroupAdapter(groupRepository.toList(groups), layoutInflater, callbacks!!)
-        groups = groupRepository.getGroups(auth!!, adapter)
+        //groups = groupRepository.groups
 
         manager = WrapContentLinearLayoutManager(context)
         manager.stackFromEnd = true

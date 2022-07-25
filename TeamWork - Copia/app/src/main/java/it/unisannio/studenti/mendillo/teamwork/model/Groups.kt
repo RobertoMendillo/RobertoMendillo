@@ -1,4 +1,4 @@
-package it.unisannio.studenti.mendillo.teamwork
+package it.unisannio.studenti.mendillo.teamwork.model
 
 import java.io.Serializable
 import kotlin.collections.HashMap
@@ -13,6 +13,10 @@ class Groups: Serializable {
 
     constructor(data : HashMap<String, String>){
         this.groups = data
+    }
+
+    fun remove(idGroup: String){
+        this.groups?.remove(idGroup)
     }
 
     fun put(idGroup: String, role:String){

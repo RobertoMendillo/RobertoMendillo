@@ -7,4 +7,10 @@
         android:icon="@android:drawable/ic_menu_save"
         />
 
+    <item
+        android:id="@+id/add_group_image"
+        android:title="Set image"
+        android:icon="@android:drawable/ic_menu_camera"
+        />
+
 </menu>

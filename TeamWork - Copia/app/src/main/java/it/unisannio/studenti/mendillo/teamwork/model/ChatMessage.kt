@@ -1,4 +1,4 @@
-package it.unisannio.studenti.mendillo.teamwork
+package it.unisannio.studenti.mendillo.teamwork.model
 
 import java.util.*
 

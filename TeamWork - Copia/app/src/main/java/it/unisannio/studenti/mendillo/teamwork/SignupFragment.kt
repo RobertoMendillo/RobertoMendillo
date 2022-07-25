@@ -58,7 +58,7 @@ class SignupFragment: Fragment(){
                     // Registrazione completata con successo
                     Log.d(TAG, "createUserWithEmailPassword:success")
                     val user = auth.currentUser
-                    addUserToDatabase(email)
+                    GroupRepository.get().addUserToDatabase(email)
                     var bundle: Bundle = Bundle()
                     bundle.putSerializable("user",email)
                     val fragment: Fragment = GroupListFragment()
@@ -72,16 +72,7 @@ class SignupFragment: Fragment(){
             }
     }
 
-    private fun addUserToDatabase(email: String){
-        var data: HashMap<String, Any?> = HashMap()
-        var groups: Map<String, String?> = HashMap()
-        data["email"] = email
-        data["groups"] = groups
 
-        db.collection(MainActivity.USERS)
-            .document(email)
-            .set(data)
-    }
 
     private fun validateForm(): Boolean{
 

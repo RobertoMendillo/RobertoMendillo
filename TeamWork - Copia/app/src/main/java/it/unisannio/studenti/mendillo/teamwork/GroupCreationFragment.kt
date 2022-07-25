@@ -1,10 +1,22 @@
 package it.unisannio.studenti.mendillo.teamwork
 
+import android.app.Activity
+import android.content.Intent
+import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Picture
+import android.media.Image
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.graphics.drawable.toIcon
+import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,16 +31,14 @@ import kotlin.collections.HashMap
 
 private const val TAG = "GroupCreationFragment"
 
+private const val ACTION_PICK_CODE = 500
+
 class GroupCreationFragment: Fragment() {
-
-    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
-
     private var group: Group = Group()
 
     private lateinit var binding: FragmentGroupCreationBinding
     private lateinit var membersRecycleView: RecyclerView
     private lateinit var adapter: MemberAdapter
-    private lateinit var membersRef: DocumentReference
 
     private val groupRepository = GroupRepository.get()
 
@@ -92,14 +102,15 @@ class GroupCreationFragment: Fragment() {
                 group.description = binding.editTextGroupDescription.text.toString()
                 group.id = UUID.randomUUID().toString()
                 group.members?.put(email, "owner")
-
+                GroupRepository.get().groups.put(group.id!!, group)
                 // aggiungo il gruppo nel database
                 groupRepository.createGroup(email, group)
                 binding.editTextGroupName.error = null
 
+                val fragment = GroupListFragment.newInstance()
                 Toast.makeText(context, "Group ${group.name} added", Toast.LENGTH_SHORT).show()
                 parentFragmentManager.beginTransaction()
-                    .replace(R.id.fragment_container, GroupListFragment.newInstance()).commit()
+                    .replace(R.id.fragment_container, fragment).commit()
             }
 
         }
@@ -149,7 +160,32 @@ class GroupCreationFragment: Fragment() {
         inflater.inflate(R.menu.fragment_group_creation, menu)
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            R.id.save_group_button -> {
+                group.name = binding.editTextGroupName.text.toString()
+                group.description = binding.editTextGroupDescription.text.toString()
+                GroupRepository.get().updateGroup(group)
+                return true
+            }
+            R.id.add_group_image -> {
+                var intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.type = "image/*"
+                startActivityForResult(intent, ACTION_PICK_CODE)
+                true
+            }
+            else -> { return super.onOptionsItemSelected(item) }
+        }
+    }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == ACTION_PICK_CODE && resultCode == Activity.RESULT_OK && data != null){
+            var selectedImage: Uri = data.data!!
+            binding.groupImage.setImageURI(selectedImage)
+            //group.picture = Uri.
+        }
+    }
 
 
 
